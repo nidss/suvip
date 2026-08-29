@@ -251,6 +251,49 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);padding:13px 22px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:300;font-size:14px;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{border-color:var(--green)}
+
+/* ---------- Dashboard (Ctrl+Shift+Z) ---------- */
+.dash-back{position:fixed;inset:0;background:var(--bg);z-index:250;display:none;overflow:auto}
+.dash-back.open{display:block}
+.dash-wrap{max-width:1440px;margin:0 auto;padding:22px clamp(14px,3vw,32px) 70px}
+.dash-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.dash-title{font-size:clamp(22px,3vw,28px);font-weight:700;letter-spacing:.5px}
+.dash-title small{display:block;font-size:11px;color:var(--txt-dim);letter-spacing:2px;font-weight:600;margin-top:2px}
+.dash-close{background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt-dim);width:42px;height:42px;border-radius:11px;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.dash-close:hover{color:#fff;border-color:var(--mint)}
+.dash-close svg{width:20px;height:20px}
+.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:26px}
+@media(max-width:760px){.kpi-row{grid-template-columns:1fr}}
+.kpi-card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden}
+.kpi-card::after{content:"";position:absolute;right:-24px;top:-24px;width:96px;height:96px;border-radius:50%;background:var(--mint-soft);opacity:.5}
+.kpi-card .k-ico{width:42px;height:42px;border-radius:11px;background:var(--mint-soft);color:var(--mint);display:grid;place-items:center;margin-bottom:14px;position:relative;z-index:1}
+.kpi-card .k-ico svg{width:22px;height:22px}
+.kpi-card .k-val{font-size:clamp(26px,4vw,34px);font-weight:800;letter-spacing:.5px;position:relative;z-index:1;font-variant-numeric:tabular-nums}
+.kpi-card .k-lab{font-size:13px;color:var(--txt-dim);margin-top:3px;position:relative;z-index:1}
+.table-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.table-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.table-tools .tt-count{font-size:13px;color:var(--txt);font-weight:700}
+.table-tools .tt-hint{font-size:12px;color:var(--txt-faint)}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dtable{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+.dtable th{background:var(--panel-2);color:var(--txt-dim);font-weight:700;text-align:left;padding:11px 13px;border-bottom:1px solid var(--line-2);position:sticky;top:0;z-index:1}
+.dtable td{padding:10px 13px;border-bottom:1px solid var(--line);color:var(--txt);vertical-align:middle}
+.dtable tbody tr:hover td{background:rgba(255,255,255,.025)}
+.dtable td.trunc{max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.dtable .amt{color:var(--amber);font-weight:700;font-variant-numeric:tabular-nums}
+.dtable .empty-row td{text-align:center;color:var(--txt-faint);padding:34px;font-style:italic}
+.badge-tab{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.3px;padding:3px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--txt-dim)}
+.badge-tab.early{color:var(--lime);border-color:rgba(209,255,3,.4)}
+.ico-btn{background:transparent;border:1px solid var(--line-2);border-radius:7px;width:32px;height:32px;color:var(--amber);cursor:pointer;display:inline-grid;place-items:center;vertical-align:middle}
+.ico-btn:hover{background:rgba(255,180,0,.12);border-color:var(--amber)}
+.ico-btn svg{width:16px;height:16px}
+.dm-back{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);z-index:260;display:none;align-items:center;justify-content:center;padding:16px}
+.dm-back.open{display:flex}
+.dm{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line-2);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow:auto;position:relative;box-shadow:var(--shadow)}
+.dm-x{position:absolute;top:10px;right:12px;background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt-dim);width:30px;height:30px;border-radius:8px;font-size:19px;line-height:1;cursor:pointer;z-index:2}
+.dm-x:hover{color:#fff;border-color:var(--mint)}
+.dm-body{padding:24px}
+.dm-body h3{margin:0 0 16px;font-size:18px}
 </style>
 </head>
 <body>
@@ -457,6 +500,53 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <div class="toast" id="toast"></div>
 
+<!-- ============ DASHBOARD (Ctrl+Shift+Z) ============ -->
+<div class="dash-back" id="dashBack">
+  <div class="dash-wrap">
+    <div class="dash-head">
+      <div class="dash-title" data-i18n-html="dash.title">แดชบอร์ดผู้สมัคร<small>SOUPED UP VIP VILLAGE · DASHBOARD</small></div>
+      <div style="display:flex;align-items:center;gap:12px">
+      <div class="lang-switch">
+        <button data-setlang="th">TH</button>
+        <button data-setlang="en">EN</button>
+      </div>
+      <button class="dash-close" id="dashClose" title="Ctrl+Shift+Z">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="k-val" id="kpiCount">0</div>
+        <div class="k-lab" data-i18n="dash.count">จำนวนผู้สมัคร</div>
+      </div>
+      <div class="kpi-card">
+        <div class="k-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+        <div class="k-val" id="kpiTotal">0</div>
+        <div class="k-lab" data-i18n="dash.total">จำนวนเงินรวม</div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-tools">
+        <span class="tt-count" id="dashCount"></span>
+        <span class="tt-hint" data-i18n="dash.hint">กด Ctrl+Shift+Z เพื่อปิด</span>
+      </div>
+      <div class="table-scroll">
+        <table class="dtable" id="dashTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- edit modal -->
+<div class="dm-back" id="dmBack">
+  <div class="dm">
+    <button class="dm-x" id="dmX">×</button>
+    <div class="dm-body" id="dmBody"></div>
+  </div>
+</div>
+
 <script>
 /* ================= State ================= */
 const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{}, payMethod:'card', tax:false, result:null };
@@ -522,7 +612,12 @@ const L = {
     'py.confirm':'ยืนยันชำระเงิน','btn.back':'ย้อนกลับ',
     'dn.title':'ชำระเงินสำเร็จ!','dn.sub':'เราได้ส่งอีเมลยืนยันการลงทะเบียนให้คุณแล้ว','dn.email':'ส่งไปที่',
     'dn.ref':'หมายเลขอ้างอิง','dn.name':'ชื่อผู้สมัคร','dn.pkg':'แพ็กเกจ','dn.days':'วันที่เข้าร่วม','dn.amount':'ยอดที่ชำระ',
-    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ'
+    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ',
+    'dash.title':'แดชบอร์ดผู้สมัคร<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
+    'dash.count':'จำนวนผู้สมัคร','dash.total':'จำนวนเงินรวม','dash.hint':'กด Ctrl+Shift+Z เพื่อปิด',
+    'dash.rows':'รายการ','dash.empty':'ยังไม่มีข้อมูลผู้สมัคร',
+    'dash.edit':'แก้ไขข้อมูลผู้สมัคร','dash.save':'บันทึก','dash.saved':'บันทึกข้อมูลแล้ว ✓','dash.cancel':'ยกเลิก',
+    'dash.h.no':'#','dash.h.name':'ชื่อ','dash.h.surname':'นามสกุล','dash.h.phone':'เบอร์โทร','dash.h.email':'อีเมล','dash.h.pricetab':'ประเภทราคา','dash.h.pkg':'แพ็กเกจ','dash.h.days':'วันที่มา','dash.h.tshirt':'ไซส์เสื้อ','dash.h.contacts':'ช่องทางติดต่อ','dash.h.plates':'ทะเบียนรถ','dash.h.avoid':'อาหารที่ไม่ทาน','dash.h.allergy':'อาหารที่แพ้','dash.h.amount':'ยอดชำระ','dash.h.action':'จัดการ'
   },
   en:{
     'tab.early':'Early Bird','tab.normal':'Normal Price',
@@ -570,7 +665,12 @@ const L = {
     'py.confirm':'Confirm Payment','btn.back':'Back',
     'dn.title':'Payment Successful!','dn.sub':'A confirmation email has been sent to you.','dn.email':'Sent to',
     'dn.ref':'Reference No.','dn.name':'Applicant','dn.pkg':'Package','dn.days':'Attendance day(s)','dn.amount':'Amount Paid',
-    'dn.new':'Register another entry','dn.print':'Print receipt'
+    'dn.new':'Register another entry','dn.print':'Print receipt',
+    'dash.title':'Applicants Dashboard<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
+    'dash.count':'Applicants','dash.total':'Total Amount','dash.hint':'Press Ctrl+Shift+Z to close',
+    'dash.rows':'record(s)','dash.empty':'No applicants yet',
+    'dash.edit':'Edit applicant','dash.save':'Save','dash.saved':'Saved ✓','dash.cancel':'Cancel',
+    'dash.h.no':'#','dash.h.name':'Name','dash.h.surname':'Surname','dash.h.phone':'Phone','dash.h.email':'Email','dash.h.pricetab':'Price type','dash.h.pkg':'Package','dash.h.days':'Days','dash.h.tshirt':'T-Shirt','dash.h.contacts':'Contacts','dash.h.plates':'License plate','dash.h.avoid':'Food avoided','dash.h.allergy':'Allergies','dash.h.amount':'Amount','dash.h.action':'Manage'
   }
 };
 function t(k){ return (L[state.lang][k] !== undefined ? L[state.lang][k] : k); }
@@ -705,12 +805,14 @@ function applyLang(){
   document.documentElement.setAttribute('data-lang', state.lang);
   document.querySelectorAll('[data-setlang]').forEach(b=>b.classList.toggle('active', b.dataset.setlang===state.lang));
   document.querySelectorAll('[data-i18n]').forEach(n=>{ n.textContent = t(n.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(n=>{ n.innerHTML = t(n.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(n=>{ n.placeholder = t(n.dataset.i18nPh); });
   renderContent();
   renderPackages();
   renderParking();
   if(el('payView') && !el('payView').hidden) renderPay();
   if(el('doneView') && !el('doneView').hidden) renderDone();
+  if(el('dashBack') && el('dashBack').classList.contains('open')) renderDashboard();
 }
 
 /* ================= Views ================= */
@@ -919,8 +1021,135 @@ document.getElementById('regForm').addEventListener('submit', e=>{
     consent: true
   };
   console.log('Registration payload:', payload);
+
+  // persist for dashboard
+  addReg({
+    id: 'r'+Date.now()+Math.floor(Math.random()*1000),
+    ts: Date.now(),
+    priceTab: state.tab,
+    name: payload.name,
+    surname: payload.surname,
+    phone: payload.phone,
+    email: payload.email,
+    contacts: chans,
+    pkg: state.pkg,
+    dayIds: days.map(d=>d.id),
+    amount: PRICES[state.tab][state.pkg],
+    tshirt: shirt,
+    plates: days.map(d=>({ day:d.id, plate: state.plates[d.id]||'' })),
+    foodAvoid: payload.foodAvoid,
+    foodAllergy: payload.foodAllergy,
+    consent: true
+  });
+
   showView('pay');
   renderPay();
+});
+
+/* ================= Dashboard ================= */
+const REGS_KEY = 'suvip_regs';
+function loadRegs(){ try{ return JSON.parse(localStorage.getItem(REGS_KEY)) || []; }catch(e){ return []; } }
+function saveRegs(a){ try{ localStorage.setItem(REGS_KEY, JSON.stringify(a)); }catch(e){} }
+function addReg(rec){ const a = loadRegs(); a.push(rec); saveRegs(a); }
+function dayLabel(id){ const d = DAYS.find(x=>x.id===id); return d ? d[state.lang] : id; }
+
+const EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>';
+
+function renderDashboard(){
+  const regs = loadRegs();
+  el('kpiCount').textContent = fmt(regs.length);
+  el('kpiTotal').textContent = money(regs.reduce((s,r)=>s+(r.amount||0),0));
+  el('dashCount').textContent = fmt(regs.length)+' '+t('dash.rows');
+
+  const heads = ['no','name','surname','phone','email','pricetab','pkg','days','tshirt','contacts','plates','avoid','allergy','amount','action']
+    .map(h=>'<th>'+t('dash.h.'+h)+'</th>').join('');
+
+  let body;
+  if(regs.length===0){
+    body = '<tr class="empty-row"><td colspan="15">'+t('dash.empty')+'</td></tr>';
+  } else {
+    body = regs.map((r,i)=>{
+      const days = (r.dayIds||[]).map(dayLabel).join(', ');
+      const plates = (r.plates||[]).filter(p=>p.plate).map(p=>dayLabel(p.day)+': '+esc(p.plate)).join(' · ') || '-';
+      const contacts = (r.contacts||[]).map(esc).join(', ') || '-';
+      const tabBadge = '<span class="badge-tab '+(r.priceTab==='early'?'early':'')+'">'+t('tab.'+r.priceTab)+'</span>';
+      return '<tr>'+
+        '<td>'+(i+1)+'</td>'+
+        '<td>'+esc(r.name)+'</td>'+
+        '<td>'+esc(r.surname)+'</td>'+
+        '<td>'+esc(r.phone)+'</td>'+
+        '<td class="trunc" title="'+esc(r.email)+'">'+esc(r.email)+'</td>'+
+        '<td>'+tabBadge+'</td>'+
+        '<td>'+t('pkg.'+r.pkg)+'</td>'+
+        '<td>'+esc(days)+'</td>'+
+        '<td>'+esc(r.tshirt||'-')+'</td>'+
+        '<td class="trunc" title="'+esc(contacts)+'">'+contacts+'</td>'+
+        '<td>'+plates+'</td>'+
+        '<td class="trunc" title="'+esc(r.foodAvoid||'')+'">'+(esc(r.foodAvoid)||'-')+'</td>'+
+        '<td class="trunc" title="'+esc(r.foodAllergy||'')+'">'+(esc(r.foodAllergy)||'-')+'</td>'+
+        '<td class="amt">'+money(r.amount||0)+'</td>'+
+        '<td><button class="ico-btn" data-edit="'+r.id+'" title="'+t('dash.edit')+'">'+EDIT_ICON+'</button></td>'+
+      '</tr>';
+    }).join('');
+  }
+  el('dashTable').innerHTML = '<thead><tr>'+heads+'</tr></thead><tbody>'+body+'</tbody>';
+  el('dashTable').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+}
+
+function openEdit(id){
+  const regs = loadRegs();
+  const r = regs.find(x=>x.id===id);
+  if(!r) return;
+  el('dmBody').innerHTML =
+    '<h3>'+t('dash.edit')+'</h3>'+
+    '<div class="grid">'+
+      '<div class="field"><label>'+t('ap.name')+'</label><input class="control" id="e_name" value="'+esc(r.name)+'"></div>'+
+      '<div class="field"><label>'+t('ap.surname')+'</label><input class="control" id="e_surname" value="'+esc(r.surname)+'"></div>'+
+      '<div class="field"><label>'+t('ap.phone')+'</label><input class="control" id="e_phone" value="'+esc(r.phone)+'"></div>'+
+      '<div class="field"><label>'+t('ap.email')+'</label><input class="control" id="e_email" value="'+esc(r.email)+'"></div>'+
+      '<div class="field"><label>'+t('shirt.label')+'</label><select class="control" id="e_shirt"><option value="L">L</option><option value="XL">XL</option><option value="-">-</option></select></div>'+
+      '<div class="field"><label>'+t('py.pricetab')+'</label><select class="control" id="e_tab"><option value="early">'+t('tab.early')+'</option><option value="normal">'+t('tab.normal')+'</option></select></div>'+
+      '<div class="field full"><label>'+t('buffet.avoid')+'</label><input class="control" id="e_avoid" value="'+esc(r.foodAvoid||'')+'"></div>'+
+      '<div class="field full"><label>'+t('buffet.allergy')+'</label><input class="control" id="e_allergy" value="'+esc(r.foodAllergy||'')+'"></div>'+
+    '</div>'+
+    '<div class="actions"><button type="button" class="btn btn-ghost" id="e_cancel">'+t('dash.cancel')+'</button><div class="spacer"></div><button type="button" class="btn btn-primary" id="e_save">'+t('dash.save')+'</button></div>';
+  el('e_shirt').value = r.tshirt || '-';
+  el('e_tab').value = r.priceTab || 'early';
+  el('dmBack').classList.add('open');
+  el('e_cancel').onclick = closeEdit;
+  el('e_save').onclick = ()=>{
+    r.name = el('e_name').value.trim();
+    r.surname = el('e_surname').value.trim();
+    r.phone = el('e_phone').value.trim();
+    r.email = el('e_email').value.trim();
+    r.tshirt = el('e_shirt').value;
+    r.priceTab = el('e_tab').value;
+    r.amount = PRICES[r.priceTab][r.pkg];  // keep amount consistent with price type
+    r.foodAvoid = el('e_avoid').value.trim();
+    r.foodAllergy = el('e_allergy').value.trim();
+    saveRegs(regs);
+    closeEdit();
+    renderDashboard();
+    toast(t('dash.saved'), true);
+  };
+}
+function closeEdit(){ el('dmBack').classList.remove('open'); }
+
+function openDashboard(){ renderDashboard(); el('dashBack').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeDashboard(){ el('dashBack').classList.remove('open'); document.body.style.overflow=''; }
+
+el('dashClose').onclick = closeDashboard;
+el('dmX').onclick = closeEdit;
+el('dmBack').addEventListener('click', e=>{ if(e.target===el('dmBack')) closeEdit(); });
+
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.shiftKey && (e.key==='Z' || e.key==='z' || e.code==='KeyZ')){
+    e.preventDefault();
+    if(el('dashBack').classList.contains('open')) closeDashboard(); else openDashboard();
+  } else if(e.key==='Escape'){
+    if(el('dmBack').classList.contains('open')) closeEdit();
+    else if(el('dashBack').classList.contains('open')) closeDashboard();
+  }
 });
 
 /* ================= Init ================= */
