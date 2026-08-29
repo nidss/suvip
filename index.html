@@ -287,6 +287,13 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .ico-btn{background:transparent;border:1px solid var(--line-2);border-radius:7px;width:32px;height:32px;color:var(--amber);cursor:pointer;display:inline-grid;place-items:center;vertical-align:middle}
 .ico-btn:hover{background:rgba(255,180,0,.12);border-color:var(--amber)}
 .ico-btn svg{width:16px;height:16px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.pager .pinfo{font-size:12.5px;color:var(--txt-dim)}
+.pager .pbtns{display:flex;gap:4px;flex-wrap:wrap}
+.pager button{min-width:34px;height:34px;padding:0 10px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--txt-dim);border-radius:8px;cursor:pointer;font-weight:700;font-size:13px}
+.pager button:hover:not(:disabled):not(.active){border-color:var(--mint);color:var(--txt)}
+.pager button.active{background:var(--mint);color:var(--mint-ink);border-color:var(--mint)}
+.pager button:disabled{opacity:.35;cursor:not-allowed}
 .dm-back{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);z-index:260;display:none;align-items:center;justify-content:center;padding:16px}
 .dm-back.open{display:flex}
 .dm{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line-2);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow:auto;position:relative;box-shadow:var(--shadow)}
@@ -535,6 +542,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
       <div class="table-scroll">
         <table class="dtable" id="dashTable"></table>
       </div>
+      <div class="pager" id="dashPager"></div>
     </div>
   </div>
 </div>
@@ -549,7 +557,8 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <script>
 /* ================= State ================= */
-const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{}, payMethod:'card', tax:false, result:null };
+const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{}, payMethod:'card', tax:false, result:null, dashPage:1 };
+const PAGE_SIZE = 30;
 const el = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
@@ -617,7 +626,8 @@ const L = {
     'dash.count':'จำนวนผู้สมัคร','dash.total':'จำนวนเงินรวม','dash.hint':'กด Ctrl+Shift+Z เพื่อปิด',
     'dash.rows':'รายการ','dash.empty':'ยังไม่มีข้อมูลผู้สมัคร',
     'dash.edit':'แก้ไขข้อมูลผู้สมัคร','dash.save':'บันทึก','dash.saved':'บันทึกข้อมูลแล้ว ✓','dash.cancel':'ยกเลิก',
-    'dash.h.no':'#','dash.h.name':'ชื่อ','dash.h.surname':'นามสกุล','dash.h.phone':'เบอร์โทร','dash.h.email':'อีเมล','dash.h.pricetab':'ประเภทราคา','dash.h.pkg':'แพ็กเกจ','dash.h.days':'วันที่มา','dash.h.tshirt':'ไซส์เสื้อ','dash.h.contacts':'ช่องทางติดต่อ','dash.h.plates':'ทะเบียนรถ','dash.h.avoid':'อาหารที่ไม่ทาน','dash.h.allergy':'อาหารที่แพ้','dash.h.amount':'ยอดชำระ','dash.h.action':'จัดการ'
+    'dash.h.no':'#','dash.h.name':'ชื่อ','dash.h.surname':'นามสกุล','dash.h.phone':'เบอร์โทร','dash.h.email':'อีเมล','dash.h.pricetab':'ประเภทราคา','dash.h.pkg':'แพ็กเกจ','dash.h.days':'วันที่มา','dash.h.tshirt':'ไซส์เสื้อ','dash.h.contacts':'ช่องทางติดต่อ','dash.h.plates':'ทะเบียนรถ','dash.h.avoid':'อาหารที่ไม่ทาน','dash.h.allergy':'อาหารที่แพ้','dash.h.amount':'ยอดชำระ','dash.h.action':'จัดการ',
+    'dash.showing':'แสดง {a}-{b} จาก {n} รายการ','dash.prev':'ก่อนหน้า','dash.next':'ถัดไป'
   },
   en:{
     'tab.early':'Early Bird','tab.normal':'Normal Price',
@@ -670,7 +680,8 @@ const L = {
     'dash.count':'Applicants','dash.total':'Total Amount','dash.hint':'Press Ctrl+Shift+Z to close',
     'dash.rows':'record(s)','dash.empty':'No applicants yet',
     'dash.edit':'Edit applicant','dash.save':'Save','dash.saved':'Saved ✓','dash.cancel':'Cancel',
-    'dash.h.no':'#','dash.h.name':'Name','dash.h.surname':'Surname','dash.h.phone':'Phone','dash.h.email':'Email','dash.h.pricetab':'Price type','dash.h.pkg':'Package','dash.h.days':'Days','dash.h.tshirt':'T-Shirt','dash.h.contacts':'Contacts','dash.h.plates':'License plate','dash.h.avoid':'Food avoided','dash.h.allergy':'Allergies','dash.h.amount':'Amount','dash.h.action':'Manage'
+    'dash.h.no':'#','dash.h.name':'Name','dash.h.surname':'Surname','dash.h.phone':'Phone','dash.h.email':'Email','dash.h.pricetab':'Price type','dash.h.pkg':'Package','dash.h.days':'Days','dash.h.tshirt':'T-Shirt','dash.h.contacts':'Contacts','dash.h.plates':'License plate','dash.h.avoid':'Food avoided','dash.h.allergy':'Allergies','dash.h.amount':'Amount','dash.h.action':'Manage',
+    'dash.showing':'Showing {a}-{b} of {n}','dash.prev':'Prev','dash.next':'Next'
   }
 };
 function t(k){ return (L[state.lang][k] !== undefined ? L[state.lang][k] : k); }
@@ -1053,6 +1064,48 @@ function saveRegs(a){ try{ localStorage.setItem(REGS_KEY, JSON.stringify(a)); }c
 function addReg(rec){ const a = loadRegs(); a.push(rec); saveRegs(a); }
 function dayLabel(id){ const d = DAYS.find(x=>x.id===id); return d ? d[state.lang] : id; }
 
+/* ---- Mock data (seeded once if empty) ---- */
+function seedMockIfEmpty(){
+  if(loadRegs().length) return;
+  const firsts = ['สมชาย','มาลี','อนุชา','ปิยะ','กมล','ณัฐพล','วรรณา','ธนกร','ศิริพร','ประเสริฐ','จิราพร','อภิสิทธิ์','สุดา','วิชัย','นภา','เอกชัย','พรทิพย์','สมพร','ชัยวัฒน์','รัตนา','ธีระ','กาญจนา','ภาณุ','สุนิสา','ยุทธนา','อรอุมา','ดนัย','พิมพ์ชนก','สุรชัย','เบญจวรรณ'];
+  const lasts = ['ใจดี','สวยงาม','รักชาติ','มั่งมี','ศรีสุข','ทองคำ','บุญมา','แสงทอง','วงศ์ใหญ่','พรหมมา','จันทร์เพ็ญ','เกียรติศักดิ์','สุขสันต์','ไพศาล','อินทร','มณีรัตน์','ธนโชติ','คงเดช','พูนสุข','ยอดเยี่ยม'];
+  const contactsPool = ['Line','WeChat','WhatsApp'];
+  const foods = ['','','','เนื้อวัว','หมู','อาหารทะเล','ผักชี'];
+  const allergies = ['','','','กุ้ง','ถั่ว','นม','ไข่'];
+  const tabs = ['early','normal'];
+  const pkgs = ['p1','p2','p3'];
+  const platePrefix = ['กก','ขข','คค','งง','จจ','ฉฉ','ชช','ญญ'];
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+  const N = 68;
+  const regs = [];
+  for(let i=0;i<N;i++){
+    const tab = pick(tabs);
+    const pkg = pick(pkgs);
+    const need = PKG_DAYS[pkg];
+    const dayIds = ['d5','d6','d7'].slice().sort(()=>Math.random()-0.5).slice(0,need).sort();
+    const contacts = contactsPool.filter(()=>Math.random()>0.55).map(c=>c+': '+(c==='WhatsApp'?'+66':'@')+(800000000+Math.floor(Math.random()*99999999)));
+    const fn = pick(firsts), ln = pick(lasts);
+    regs.push({
+      id:'mock'+i+'-'+Math.floor(Math.random()*100000),
+      ts: Date.now()-i*3600000,
+      priceTab: tab,
+      name: fn, surname: ln,
+      phone: '0'+(6+Math.floor(Math.random()*3))+String(Math.floor(10000000+Math.random()*89999999)),
+      email: 'user'+(1000+i)+'@example.com',
+      contacts,
+      pkg,
+      dayIds,
+      amount: PRICES[tab][pkg],
+      tshirt: Math.random()>0.5?'L':'XL',
+      plates: dayIds.map(d=>({day:d, plate: pick(platePrefix)+' '+String(1000+Math.floor(Math.random()*8999))})),
+      foodAvoid: pick(foods),
+      foodAllergy: pick(allergies),
+      consent: true
+    });
+  }
+  saveRegs(regs);
+}
+
 const EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>';
 
 function renderDashboard(){
@@ -1061,6 +1114,12 @@ function renderDashboard(){
   el('kpiTotal').textContent = money(regs.reduce((s,r)=>s+(r.amount||0),0));
   el('dashCount').textContent = fmt(regs.length)+' '+t('dash.rows');
 
+  const totalPages = Math.max(1, Math.ceil(regs.length / PAGE_SIZE));
+  if(state.dashPage > totalPages) state.dashPage = totalPages;
+  if(state.dashPage < 1) state.dashPage = 1;
+  const start = (state.dashPage-1) * PAGE_SIZE;
+  const pageRegs = regs.slice(start, start + PAGE_SIZE);
+
   const heads = ['no','name','surname','phone','email','pricetab','pkg','days','tshirt','contacts','plates','avoid','allergy','amount','action']
     .map(h=>'<th>'+t('dash.h.'+h)+'</th>').join('');
 
@@ -1068,7 +1127,8 @@ function renderDashboard(){
   if(regs.length===0){
     body = '<tr class="empty-row"><td colspan="15">'+t('dash.empty')+'</td></tr>';
   } else {
-    body = regs.map((r,i)=>{
+    body = pageRegs.map((r,idx)=>{
+      const i = start + idx;
       const days = (r.dayIds||[]).map(dayLabel).join(', ');
       const plates = (r.plates||[]).filter(p=>p.plate).map(p=>dayLabel(p.day)+': '+esc(p.plate)).join(' · ') || '-';
       const contacts = (r.contacts||[]).map(esc).join(', ') || '-';
@@ -1094,6 +1154,42 @@ function renderDashboard(){
   }
   el('dashTable').innerHTML = '<thead><tr>'+heads+'</tr></thead><tbody>'+body+'</tbody>';
   el('dashTable').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+
+  renderPager(regs.length, totalPages, start, pageRegs.length);
+}
+function renderPager(total, totalPages, start, shown){
+  const pager = el('dashPager');
+  if(total === 0){ pager.innerHTML=''; return; }
+  const info = t('dash.showing')
+    .replace('{a}', total?fmt(start+1):0)
+    .replace('{b}', fmt(start+shown))
+    .replace('{n}', fmt(total));
+  // page number window
+  let nums = '';
+  const cur = state.dashPage;
+  const win = [];
+  for(let pg=1; pg<=totalPages; pg++){
+    if(pg===1 || pg===totalPages || (pg>=cur-1 && pg<=cur+1)) win.push(pg);
+    else if(win[win.length-1] !== '…') win.push('…');
+  }
+  nums = win.map(pg => pg==='…'
+    ? '<button disabled>…</button>'
+    : '<button class="'+(pg===cur?'active':'')+'" data-page="'+pg+'">'+pg+'</button>'
+  ).join('');
+  pager.innerHTML =
+    '<span class="pinfo">'+info+'</span>'+
+    '<span class="pbtns">'+
+      '<button data-page="'+(cur-1)+'"'+(cur<=1?' disabled':'')+'>‹ '+t('dash.prev')+'</button>'+
+      nums+
+      '<button data-page="'+(cur+1)+'"'+(cur>=totalPages?' disabled':'')+'>'+t('dash.next')+' ›</button>'+
+    '</span>';
+  pager.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{
+    const pg = parseInt(b.dataset.page,10);
+    if(isNaN(pg) || pg<1 || pg>totalPages || pg===state.dashPage) return;
+    state.dashPage = pg;
+    renderDashboard();
+    const sc = document.querySelector('.table-scroll'); if(sc) sc.scrollTop = 0;
+  });
 }
 
 function openEdit(id){
@@ -1153,6 +1249,7 @@ document.addEventListener('keydown', e=>{
 });
 
 /* ================= Init ================= */
+seedMockIfEmpty();
 applyLang();
 setTab('early');
 </script>
