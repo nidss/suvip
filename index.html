@@ -16,9 +16,9 @@
   --panel-2:#1b1f27;
   --line:#2a2f3a;
   --line-2:#363c49;
-  --txt:#e8eaee;
-  --txt-dim:#9aa1ad;
-  --txt-faint:#6b7280;
+  --txt:#f4f6f9;
+  --txt-dim:#c4cad4;
+  --txt-faint:#98a0ae;
   --red:#e10600;
   --red-2:#ff2b1c;
   --mint:#6FFFE8;
@@ -824,6 +824,7 @@ function applyLang(){
   if(el('payView') && !el('payView').hidden) renderPay();
   if(el('doneView') && !el('doneView').hidden) renderDone();
   if(el('dashBack') && el('dashBack').classList.contains('open')) renderDashboard();
+  if(el('dmBack') && el('dmBack').classList.contains('open') && editState) renderEditModal();
 }
 
 /* ================= Views ================= */
@@ -1192,44 +1193,141 @@ function renderPager(total, totalPages, start, shown){
   });
 }
 
+let editState = null;
 function openEdit(id){
-  const regs = loadRegs();
-  const r = regs.find(x=>x.id===id);
+  const r = loadRegs().find(x=>x.id===id);
   if(!r) return;
+  const days = {}; (r.dayIds||[]).forEach(d=>days[d]=true);
+  const plates = {}; (r.plates||[]).forEach(p=>{ if(p && p.day) plates[p.day]=p.plate||''; });
+  const contacts = {}; (r.contacts||[]).forEach(c=>{ const i=String(c).indexOf(':'); const k=(i>=0?c.slice(0,i):c).trim(); const v=(i>=0?c.slice(i+1):'').trim(); if(k) contacts[k]=v; });
+  editState = {
+    id: r.id, tab: r.priceTab||'early', pkg: r.pkg||'p1', days, plates, contacts,
+    tshirt: r.tshirt||'', name: r.name||'', surname: r.surname||'', phone: r.phone||'', email: r.email||'',
+    foodAvoid: r.foodAvoid||'', foodAllergy: r.foodAllergy||''
+  };
+  el('dmBack').classList.add('open');
+  renderEditModal();
+}
+function edField(id,label,val,full){ return '<div class="field'+(full?' full':'')+'"><label>'+label+'</label><input class="control" id="'+id+'" value="'+esc(val||'')+'"></div>'; }
+function edContactRow(k){
+  const on = editState.contacts[k]!==undefined;
+  return '<div style="margin-bottom:8px">'+
+    '<label class="checkbox"><input type="checkbox" id="c_'+k+'"'+(on?' checked':'')+'> <span>'+k+'</span></label>'+
+    '<input class="control chan-input" id="ci_'+k+'" placeholder="'+k+'" value="'+esc(editState.contacts[k]||'')+'" style="display:'+(on?'block':'none')+'">'+
+  '</div>';
+}
+function edShirtOpt(v,label){ const on=editState.tshirt===v; return '<label class="radio-opt'+(on?' sel':'')+'"><input type="radio" name="e_shirt" value="'+v+'"'+(on?' checked':'')+'><span>'+label+'</span></label>'; }
+function renderEditModal(){
+  const es = editState;
   el('dmBody').innerHTML =
     '<h3>'+t('dash.edit')+'</h3>'+
     '<div class="grid">'+
-      '<div class="field"><label>'+t('ap.name')+'</label><input class="control" id="e_name" value="'+esc(r.name)+'"></div>'+
-      '<div class="field"><label>'+t('ap.surname')+'</label><input class="control" id="e_surname" value="'+esc(r.surname)+'"></div>'+
-      '<div class="field"><label>'+t('ap.phone')+'</label><input class="control" id="e_phone" value="'+esc(r.phone)+'"></div>'+
-      '<div class="field"><label>'+t('ap.email')+'</label><input class="control" id="e_email" value="'+esc(r.email)+'"></div>'+
-      '<div class="field"><label>'+t('shirt.label')+'</label><select class="control" id="e_shirt"><option value="L">L</option><option value="XL">XL</option><option value="-">-</option></select></div>'+
-      '<div class="field"><label>'+t('py.pricetab')+'</label><select class="control" id="e_tab"><option value="early">'+t('tab.early')+'</option><option value="normal">'+t('tab.normal')+'</option></select></div>'+
-      '<div class="field full"><label>'+t('buffet.avoid')+'</label><input class="control" id="e_avoid" value="'+esc(r.foodAvoid||'')+'"></div>'+
-      '<div class="field full"><label>'+t('buffet.allergy')+'</label><input class="control" id="e_allergy" value="'+esc(r.foodAllergy||'')+'"></div>'+
+      edField('e_name', t('ap.name'), es.name)+
+      edField('e_surname', t('ap.surname'), es.surname)+
+      edField('e_phone', t('ap.phone'), es.phone)+
+      edField('e_email', t('ap.email'), es.email)+
+    '</div>'+
+    '<div class="field full" style="margin-top:14px"><label>'+t('ap.chan')+'</label>'+
+      edContactRow('Line')+edContactRow('WeChat')+edContactRow('WhatsApp')+
+    '</div>'+
+    '<div id="edDyn" style="margin-top:14px"></div>'+
+    '<div class="field full" style="margin-top:14px"><label>'+t('shirt.label')+'</label>'+
+      '<div class="radio-row">'+edShirtOpt('L', t('shirt.l'))+edShirtOpt('XL', t('shirt.xl'))+'</div>'+
+    '</div>'+
+    '<div class="grid" style="margin-top:14px">'+
+      edField('e_avoid', t('buffet.avoid'), es.foodAvoid, true)+
+      edField('e_allergy', t('buffet.allergy'), es.foodAllergy, true)+
     '</div>'+
     '<div class="actions"><button type="button" class="btn btn-ghost" id="e_cancel">'+t('dash.cancel')+'</button><div class="spacer"></div><button type="button" class="btn btn-primary" id="e_save">'+t('dash.save')+'</button></div>';
-  el('e_shirt').value = r.tshirt || '-';
-  el('e_tab').value = r.priceTab || 'early';
-  el('dmBack').classList.add('open');
+  // static text bindings
+  [['e_name','name'],['e_surname','surname'],['e_phone','phone'],['e_email','email'],['e_avoid','foodAvoid'],['e_allergy','foodAllergy']]
+    .forEach(([id,key])=>{ const e=el(id); if(e) e.oninput=()=>{ es[key]=e.value; }; });
+  // contacts
+  ['Line','WeChat','WhatsApp'].forEach(k=>{
+    const cb=el('c_'+k), inp=el('ci_'+k);
+    cb.onchange=()=>{ if(cb.checked){ es.contacts[k]=es.contacts[k]||''; inp.style.display='block'; inp.focus(); } else { delete es.contacts[k]; inp.style.display='none'; } };
+    inp.oninput=()=>{ es.contacts[k]=inp.value; };
+  });
+  // shirt
+  el('dmBody').querySelectorAll('input[name="e_shirt"]').forEach(rd=>rd.onchange=()=>{
+    es.tshirt=rd.value;
+    el('dmBody').querySelectorAll('input[name="e_shirt"]').forEach(x=>x.closest('.radio-opt').classList.toggle('sel',x.checked));
+  });
+  renderEdDyn();
   el('e_cancel').onclick = closeEdit;
-  el('e_save').onclick = ()=>{
-    r.name = el('e_name').value.trim();
-    r.surname = el('e_surname').value.trim();
-    r.phone = el('e_phone').value.trim();
-    r.email = el('e_email').value.trim();
-    r.tshirt = el('e_shirt').value;
-    r.priceTab = el('e_tab').value;
-    r.amount = PRICES[r.priceTab][r.pkg];  // keep amount consistent with price type
-    r.foodAvoid = el('e_avoid').value.trim();
-    r.foodAllergy = el('e_allergy').value.trim();
-    saveRegs(regs);
-    closeEdit();
-    renderDashboard();
-    toast(t('dash.saved'), true);
-  };
+  el('e_save').onclick = saveEdit;
 }
-function closeEdit(){ el('dmBack').classList.remove('open'); }
+function renderEdDyn(){
+  const es = editState;
+  const pkgList = ['p1','p2','p3'].map(pid=>{
+    const maxN = PKG_DAYS[pid];
+    const it = maxN===1 ? 'radio' : 'checkbox';
+    const daysHtml = DAYS.map(day=>{
+      const on = es.pkg===pid && es.days[day.id];
+      return '<label class="day-chip'+(on?' on':'')+(es.pkg!==pid?' disabled':'')+'">'+
+        '<input type="'+it+'" name="ed-day-'+pid+'" data-eday="'+pid+':'+day.id+'"'+(on?' checked':'')+(es.pkg!==pid?' disabled':'')+'>'+
+        '<span>'+day[state.lang]+'</span></label>';
+    }).join('');
+    return '<label class="opt'+(es.pkg===pid?' sel':'')+'">'+
+      '<div class="opt-top"><input type="radio" name="ed-pkg" value="'+pid+'"'+(es.pkg===pid?' checked':'')+'>'+
+        '<span class="opt-name">'+t('pkg.'+pid)+'</span>'+
+        '<span class="opt-price">'+fmt(PRICES[es.tab][pid])+' <small>'+t('baht')+'</small></span></div>'+
+      '<div class="day-pick"><div class="dp-label">'+t('pkg.days.label').replace('{n}',maxN)+'</div>'+
+        '<div class="day-grid">'+daysHtml+'</div></div>'+
+    '</label>';
+  }).join('');
+  const selDays = DAYS.filter(d=>es.days[d.id]);
+  const platesHtml = selDays.length
+    ? selDays.map(d=>'<div class="field"><label>'+t('park.plate')+' — <b style="color:var(--mint)">'+d[state.lang]+'</b></label>'+
+        '<input class="control" data-eplate="'+d.id+'" placeholder="'+t('park.plate.ph')+'" value="'+esc(es.plates[d.id]||'')+'"></div>').join('')
+    : '<div class="park-empty">'+t('park.empty')+'</div>';
+  el('edDyn').innerHTML =
+    '<div class="field full"><label>'+t('py.pricetab')+'</label>'+
+      '<select class="control" id="ed_tab"><option value="early"'+(es.tab==='early'?' selected':'')+'>'+t('tab.early')+'</option><option value="normal"'+(es.tab==='normal'?' selected':'')+'>'+t('tab.normal')+'</option></select></div>'+
+    '<div class="field full" style="margin-top:14px"><label>'+t('pkg.title')+'</label><div class="pkg-list">'+pkgList+'</div></div>'+
+    '<div class="field full" style="margin-top:14px"><label>'+t('park.title')+'</label>'+platesHtml+'</div>'+
+    '<div class="sum-line total" style="margin-top:8px"><span class="lab">'+t('sm.total')+'</span><span class="val">'+money(PRICES[es.tab][es.pkg])+'</span></div>';
+  el('ed_tab').onchange=()=>{ es.tab=el('ed_tab').value; renderEdDyn(); };
+  el('edDyn').querySelectorAll('input[name="ed-pkg"]').forEach(rd=>rd.onchange=()=>{
+    es.pkg=rd.value;
+    const maxN=PKG_DAYS[es.pkg];
+    const sel=DAYS.filter(d=>es.days[d.id]).map(d=>d.id).slice(0,maxN);
+    es.days={}; sel.forEach(d=>es.days[d]=true);
+    renderEdDyn();
+  });
+  el('edDyn').querySelectorAll('input[data-eday]').forEach(c=>c.onchange=()=>{
+    const [pid,did]=c.dataset.eday.split(':'); const maxN=PKG_DAYS[pid];
+    if(maxN===1){ es.days={}; es.days[did]=true; }
+    else {
+      const chosen=DAYS.filter(d=>es.days[d.id]).length;
+      if(c.checked && chosen>=maxN){ c.checked=false; toast(t('toast.days')); return; }
+      if(c.checked) es.days[did]=true; else delete es.days[did];
+    }
+    renderEdDyn();
+  });
+  el('edDyn').querySelectorAll('input[data-eplate]').forEach(i=>i.oninput=()=>{ es.plates[i.dataset.eplate]=i.value; });
+}
+function saveEdit(){
+  const es = editState;
+  const selDays = DAYS.filter(d=>es.days[d.id]).map(d=>d.id);
+  if(selDays.length !== PKG_DAYS[es.pkg]){ toast(t('toast.days')); return; }
+  const regs = loadRegs();
+  const r = regs.find(x=>x.id===es.id);
+  if(!r){ closeEdit(); return; }
+  r.name = es.name.trim(); r.surname = es.surname.trim(); r.phone = es.phone.trim(); r.email = es.email.trim();
+  r.priceTab = es.tab; r.pkg = es.pkg;
+  r.dayIds = selDays;
+  r.plates = selDays.map(d=>({ day:d, plate:(es.plates[d]||'').trim() }));
+  r.amount = PRICES[es.tab][es.pkg];
+  r.tshirt = es.tshirt || '-';
+  r.contacts = Object.keys(es.contacts).map(k=>{ const v=(es.contacts[k]||'').trim(); return k+(v?': '+v:''); });
+  r.foodAvoid = es.foodAvoid.trim(); r.foodAllergy = es.foodAllergy.trim();
+  saveRegs(regs);
+  closeEdit();
+  renderDashboard();
+  toast(t('dash.saved'), true);
+}
+function closeEdit(){ el('dmBack').classList.remove('open'); editState=null; }
 
 function openDashboard(){ renderDashboard(); el('dashBack').classList.add('open'); document.body.style.overflow='hidden'; }
 function closeDashboard(){ el('dashBack').classList.remove('open'); document.body.style.overflow=''; }
