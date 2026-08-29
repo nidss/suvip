@@ -274,6 +274,11 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .table-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .table-tools .tt-count{font-size:13px;color:var(--txt);font-weight:700}
 .table-tools .tt-hint{font-size:12px;color:var(--txt-faint)}
+.table-tools .tt-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-export{display:inline-flex;align-items:center;gap:7px;background:var(--mint-grad);color:var(--mint-ink);border:0;border-radius:9px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 12px var(--mint-glow);transition:.15s}
+.btn-export:hover{transform:translateY(-1px);box-shadow:0 8px 20px var(--mint-glow)}
+.btn-export:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;filter:grayscale(.4)}
+.btn-export svg{width:16px;height:16px}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .dtable{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
 .dtable th{background:var(--panel-2);color:var(--txt-dim);font-weight:700;text-align:left;padding:11px 13px;border-bottom:1px solid var(--line-2);position:sticky;top:0;z-index:1}
@@ -537,7 +542,13 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
     <div class="table-card">
       <div class="table-tools">
         <span class="tt-count" id="dashCount"></span>
-        <span class="tt-hint" data-i18n="dash.hint">กด Ctrl+Shift+Z เพื่อปิด</span>
+        <div class="tt-right">
+          <span class="tt-hint" data-i18n="dash.hint">กด Ctrl+Shift+Z เพื่อปิด</span>
+          <button type="button" class="btn-export" id="dashExport">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            <span data-i18n="dash.export">ส่งออก CSV</span>
+          </button>
+        </div>
       </div>
       <div class="table-scroll">
         <table class="dtable" id="dashTable"></table>
@@ -627,7 +638,7 @@ const L = {
     'dash.rows':'รายการ','dash.empty':'ยังไม่มีข้อมูลผู้สมัคร',
     'dash.edit':'แก้ไขข้อมูลผู้สมัคร','dash.save':'บันทึก','dash.saved':'บันทึกข้อมูลแล้ว ✓','dash.cancel':'ยกเลิก',
     'dash.h.no':'#','dash.h.name':'ชื่อ','dash.h.surname':'นามสกุล','dash.h.phone':'เบอร์โทร','dash.h.email':'อีเมล','dash.h.pricetab':'ประเภทราคา','dash.h.pkg':'แพ็กเกจ','dash.h.days':'วันที่มา','dash.h.tshirt':'ไซส์เสื้อ','dash.h.contacts':'ช่องทางติดต่อ','dash.h.plates':'ทะเบียนรถ','dash.h.avoid':'อาหารที่ไม่ทาน','dash.h.allergy':'อาหารที่แพ้','dash.h.amount':'ยอดชำระ','dash.h.action':'จัดการ',
-    'dash.showing':'แสดง {a}-{b} จาก {n} รายการ','dash.prev':'ก่อนหน้า','dash.next':'ถัดไป'
+    'dash.showing':'แสดง {a}-{b} จาก {n} รายการ','dash.prev':'ก่อนหน้า','dash.next':'ถัดไป','dash.export':'ส่งออก CSV','dash.exportEmpty':'ยังไม่มีข้อมูลให้ส่งออก'
   },
   en:{
     'tab.early':'Early Bird','tab.normal':'Normal Price',
@@ -681,7 +692,7 @@ const L = {
     'dash.rows':'record(s)','dash.empty':'No applicants yet',
     'dash.edit':'Edit applicant','dash.save':'Save','dash.saved':'Saved ✓','dash.cancel':'Cancel',
     'dash.h.no':'#','dash.h.name':'Name','dash.h.surname':'Surname','dash.h.phone':'Phone','dash.h.email':'Email','dash.h.pricetab':'Price type','dash.h.pkg':'Package','dash.h.days':'Days','dash.h.tshirt':'T-Shirt','dash.h.contacts':'Contacts','dash.h.plates':'License plate','dash.h.avoid':'Food avoided','dash.h.allergy':'Allergies','dash.h.amount':'Amount','dash.h.action':'Manage',
-    'dash.showing':'Showing {a}-{b} of {n}','dash.prev':'Prev','dash.next':'Next'
+    'dash.showing':'Showing {a}-{b} of {n}','dash.prev':'Prev','dash.next':'Next','dash.export':'Export CSV','dash.exportEmpty':'No data to export'
   }
 };
 function t(k){ return (L[state.lang][k] !== undefined ? L[state.lang][k] : k); }
@@ -1332,7 +1343,39 @@ function closeEdit(){ el('dmBack').classList.remove('open'); editState=null; }
 function openDashboard(){ renderDashboard(); el('dashBack').classList.add('open'); document.body.style.overflow='hidden'; }
 function closeDashboard(){ el('dashBack').classList.remove('open'); document.body.style.overflow=''; }
 
+function exportCSV(){
+  const regs = loadRegs();
+  if(!regs.length){ toast(t('dash.exportEmpty')); return; }
+  const dayEn = id => { const d = DAYS.find(x=>x.id===id); return d ? d.en : id; };
+  const cols = ['no','name','surname','phone','email','pricetab','pkg','days','tshirt','contacts','plates','avoid','allergy','amount'];
+  const header = cols.map(c=>t('dash.h.'+c));
+  const q = v => '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows = regs.map((r,i)=>[
+    i+1,
+    r.name||'', r.surname||'', r.phone||'', r.email||'',
+    (r.priceTab==='early'?'Early Bird':'Normal Price'),
+    'pkg '+(r.pkg||'').replace('p','')+' day',
+    (r.dayIds||[]).map(dayEn).join(' | '),
+    r.tshirt||'-',
+    (r.contacts||[]).join(' | '),
+    (r.plates||[]).filter(p=>p&&p.plate).map(p=>dayEn(p.day)+': '+p.plate).join(' | '),
+    r.foodAvoid||'', r.foodAllergy||'',
+    r.amount||0
+  ].map(q).join(','));
+  const csv = '﻿' + [header.map(q).join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  const stamp = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  a.href = url; a.download = 'suvip-applicants-'+stamp+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  toast(t('dash.saved'), true);
+}
+
 el('dashClose').onclick = closeDashboard;
+el('dashExport').onclick = exportCSV;
 el('dmX').onclick = closeEdit;
 el('dmBack').addEventListener('click', e=>{ if(e.target===el('dmBack')) closeEdit(); });
 
