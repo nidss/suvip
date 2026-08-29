@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWr5xt7DXCXFxjLu4t3ojBOX+7a9AtM7VmWXdHdr0BpsHy4vsg7WdTmoQ8lZg==" crossorigin="" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
 :root{
   --bg:#0a0b0d;
@@ -94,8 +94,8 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .pkg-tabs button.active{background:var(--mint-grad);color:var(--mint-ink);box-shadow:0 4px 14px var(--mint-glow)}
 
 /* ---------- Banner ---------- */
-.banner{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-bottom:22px;box-shadow:var(--shadow);background:#000}
-.banner svg{display:block;width:100%;height:auto}
+.banner{border-radius:var(--radius);overflow:hidden;margin-bottom:22px;box-shadow:var(--shadow);background:#000;line-height:0}
+.banner img{display:block;width:100%;height:auto}
 
 /* ---------- Forms ---------- */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -212,6 +212,42 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .foot-inner a{color:var(--mint);text-decoration:none;font-weight:600}
 .foot-copy{text-align:center;color:var(--txt-faint);font-size:11px;padding:16px;letter-spacing:1px;border-top:1px solid var(--line)}
 
+/* ---------- Payment / Summary / Success (su theme) ---------- */
+.page-title{font-size:clamp(22px,4vw,30px);margin:0 0 4px;font-weight:700;letter-spacing:.5px}
+.page-sub{color:var(--txt-dim);margin:0 0 22px;font-size:14px}
+.actions{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.actions .spacer{flex:1}
+.btn-ghost{background:transparent;border:1px solid var(--line-2);color:var(--txt-dim)}
+.btn-ghost:hover{border-color:var(--txt-dim);color:var(--txt)}
+.hidden{display:none!important}
+.sum-line{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.sum-line .lab{color:var(--txt-dim)}
+.sum-line.total{border-bottom:0;font-size:20px;font-weight:700;padding-top:16px}
+.sum-line.total .val{color:var(--amber)}
+.sum-line.discount .val{color:var(--green)}
+.discount-row{display:flex;gap:10px;margin:16px 0}
+.discount-row .control{flex:1}
+.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+@media(max-width:560px){.pay-methods{grid-template-columns:1fr}}
+.pay-opt{border:1.5px solid var(--line-2);border-radius:11px;padding:18px;cursor:pointer;transition:.15s;background:var(--bg)}
+.pay-opt:hover{border-color:var(--txt-dim)}
+.pay-opt.sel{border-color:var(--mint);background:var(--mint-soft);box-shadow:0 0 0 3px rgba(111,255,232,.14)}
+.pay-opt .p-ico{font-size:26px}
+.pay-opt .p-name{font-weight:700;margin-top:6px}
+.pay-opt .p-desc{font-size:12px;color:var(--txt-dim)}
+.qr-box{text-align:center;padding:18px;border:1px dashed var(--line-2);border-radius:10px;margin-top:14px;background:var(--bg)}
+.qr-img{width:170px;height:170px;background:#fff;border-radius:10px;display:inline-block;padding:10px}
+#taxFields{display:flex;flex-direction:column;gap:16px;margin-top:12px}#taxFields .field{margin-bottom:0}
+.success-wrap{text-align:center;padding:20px 0}
+.success-ico{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(37,194,110,.25),transparent 70%);display:grid;place-items:center;margin:0 auto 18px;border:2px solid var(--green);font-size:44px;color:var(--green)}
+.receipt{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;text-align:left;margin:22px auto 0;max-width:460px;overflow:hidden}
+.receipt .r-head{background:var(--carbon);padding:12px 18px;font-weight:700;letter-spacing:2px;font-size:12px;color:var(--txt-dim);border-bottom:1px dashed var(--line-2)}
+.receipt .r-row{display:flex;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);font-size:14px}
+.receipt .r-row:last-child{border-bottom:0}
+.receipt .r-row .rl{color:var(--txt-dim)}
+.receipt .r-row .rv{font-weight:700}
+.ref-num{font-family:'Rajdhani',monospace;letter-spacing:2px;color:var(--amber)}
+
 /* ---------- Toast ---------- */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);padding:13px 22px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:300;font-size:14px;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -232,6 +268,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <div class="wrap">
 
+ <div id="regView">
   <!-- ============ TOP TABS: Early Bird / Normal Price ============ -->
   <div class="pkg-tabs" id="pkgTabs">
     <button data-tab="early" class="active" data-i18n="tab.early">Early Bird</button>
@@ -393,6 +430,17 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
   <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="submit">ยืนยันการสมัคร (Submit)</button>
 
   </form>
+ </div><!-- /#regView -->
+
+ <!-- ============ PAYMENT VIEW ============ -->
+ <div id="payView" hidden>
+   <div class="card"><div class="speed-line"></div><div class="card-pad" id="payScreen"></div></div>
+ </div>
+
+ <!-- ============ DONE VIEW ============ -->
+ <div id="doneView" hidden>
+   <div class="card"><div class="speed-line"></div><div class="card-pad" id="doneScreen"></div></div>
+ </div>
 </div>
 
 <!-- 11. FOOTER -->
@@ -408,10 +456,12 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfg==" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ================= State ================= */
-const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{} };
+const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{}, payMethod:'card', tax:false, result:null };
+const el = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 const PRICES = {
   early:  { p1:3700, p2:7400, p3:7900 },
@@ -456,7 +506,23 @@ const L = {
     'submit':'ยืนยันการสมัคร (Submit)',
     'foot.contact':'Contact Center','foot.tel':'โทร (Tel)','foot.date':'วันจันทร์ (Mon.) - ศุกร์ (Fri.) : 08.30 - 17.00 น. (hrs.)',
     'perday':'บาท / วัน','per3':'บาท / 3 วัน','baht':'บาท',
-    'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ'
+    'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ',
+    'py.eyebrow':'ชำระเงิน','py.title':'ชำระเงิน','py.sub':'เลือกวิธีการชำระเงิน',
+    'py.days':'วันที่เข้าร่วม','py.pricetab':'ประเภทราคา','sm.total':'ยอดชำระทั้งหมด',
+    'py.card':'บัตรเครดิต','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / โอนเงิน','py.qr.d':'พร้อมเพย์ / โอนผ่านธนาคาร',
+    'py.tax':'ต้องการออกใบกำกับภาษี','py.tax.name':'ชื่อ-นามสกุล / บริษัท','py.tax.taxid':'เลขประจำตัวผู้เสียภาษี','py.tax.addr':'ที่อยู่สำหรับออกใบกำกับภาษี',
+    'py.card.num':'หมายเลขบัตร','py.card.exp':'วันหมดอายุ (MM/YY)','py.card.cvv':'CVV','py.card.holder':'ชื่อบนบัตร','py.qr.scan':'สแกน QR เพื่อชำระเงิน',
+    'py.terms.t':'เงื่อนไขการชำระเงิน',
+    'py.t1.t':'1. การตรวจสอบยอดเงิน (Verification of the registration fee)',
+    'py.t1.b':'ผู้สมัคร/ผู้ชำระเงิน มีหน้าที่ตรวจสอบยอดเงินที่ต้องชำระให้ถูกต้องครบถ้วนก่อนทำการโอนเงินทุกครั้ง · Please ensure you verify the correct total amount payable before proceeding with any money transfer.',
+    'py.t2.t':'2. การตรวจสอบหลักฐานการโอนเงิน (สลิป) (Verification of proof of payment slip)',
+    'py.t2.b':'กรุณาตรวจสอบความถูกต้องและความชัดเจนของข้อมูลบนสลิปโอนเงิน (เช่น วันที่, เวลา, จำนวนเงิน, บัญชีผู้รับ) ก่อนส่งเป็นหลักฐาน · Kindly verify the accuracy and clarity of the information on your transfer slip before submitting it as proof of payment.',
+    'py.t3.t':'3. นโยบายการคืนเงิน (Refund Policy)',
+    'py.t3.b':'ทางผู้จัดการแข่งขันขอสงวนสิทธิ์ในการไม่คืนเงินค่าสมัครในทุกกรณี · The competition organizer reserves the right to make entry fees non-refundable in all cases.',
+    'py.confirm':'ยืนยันชำระเงิน','btn.back':'ย้อนกลับ',
+    'dn.title':'ชำระเงินสำเร็จ!','dn.sub':'เราได้ส่งอีเมลยืนยันการลงทะเบียนให้คุณแล้ว','dn.email':'ส่งไปที่',
+    'dn.ref':'หมายเลขอ้างอิง','dn.name':'ชื่อผู้สมัคร','dn.pkg':'แพ็กเกจ','dn.days':'วันที่เข้าร่วม','dn.amount':'ยอดที่ชำระ',
+    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ'
   },
   en:{
     'tab.early':'Early Bird','tab.normal':'Normal Price',
@@ -488,11 +554,28 @@ const L = {
     'submit':'Submit (ยืนยันการสมัคร)',
     'foot.contact':'Contact Center','foot.tel':'Tel','foot.date':'Mon. - Fri. : 08.30 - 17.00 hrs.',
     'perday':'THB / day','per3':'THB / 3 days','baht':'THB',
-    'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.'
+    'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.',
+    'py.eyebrow':'Payment','py.title':'Payment','py.sub':'Choose a payment method',
+    'py.days':'Attendance day(s)','py.pricetab':'Price type','sm.total':'Total Amount',
+    'py.card':'Credit Card','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / Transfer','py.qr.d':'PromptPay / Bank transfer',
+    'py.tax':'Request a tax invoice','py.tax.name':'Name / Company','py.tax.taxid':'Tax ID','py.tax.addr':'Address for tax invoice',
+    'py.card.num':'Card Number','py.card.exp':'Expiry (MM/YY)','py.card.cvv':'CVV','py.card.holder':'Cardholder Name','py.qr.scan':'Scan the QR to pay',
+    'py.terms.t':'Payment Terms',
+    'py.t1.t':'1. Verification of the registration fee',
+    'py.t1.b':'Please ensure you verify the correct total amount payable before proceeding with any money transfer.',
+    'py.t2.t':'2. Verification of proof of payment slip',
+    'py.t2.b':'Kindly verify the accuracy and clarity of the information on your transfer slip (e.g., date, time, amount, recipient account) before submitting it as proof of payment.',
+    'py.t3.t':'3. Refund Policy',
+    'py.t3.b':'The competition organizer reserves the right to make entry fees non-refundable in all cases.',
+    'py.confirm':'Confirm Payment','btn.back':'Back',
+    'dn.title':'Payment Successful!','dn.sub':'A confirmation email has been sent to you.','dn.email':'Sent to',
+    'dn.ref':'Reference No.','dn.name':'Applicant','dn.pkg':'Package','dn.days':'Attendance day(s)','dn.amount':'Amount Paid',
+    'dn.new':'Register another entry','dn.print':'Print receipt'
   }
 };
 function t(k){ return (L[state.lang][k] !== undefined ? L[state.lang][k] : k); }
 function fmt(n){ return n.toLocaleString(state.lang==='th'?'th-TH':'en-US'); }
+function money(n){ return fmt(n)+' '+t('baht'); }
 
 /* ================= Content block ================= */
 function renderContent(){
@@ -544,10 +627,11 @@ function renderPackages(){
   ];
   list.innerHTML = defs.map(d=>{
     const maxN = PKG_DAYS[d.id];
+    const inputType = maxN === 1 ? 'radio' : 'checkbox';
     const daysHtml = DAYS.map(day=>{
       const on = state.days[d.id] && state.days[d.id][day.id];
       return '<label class="day-chip'+(on?' on':'')+'" data-daychip="'+d.id+':'+day.id+'">'+
-        '<input type="checkbox" data-day="'+d.id+':'+day.id+'"'+(on?' checked':'')+'>'+
+        '<input type="'+inputType+'" name="day-'+d.id+'" data-day="'+d.id+':'+day.id+'"'+(on?' checked':'')+'>'+
         '<span>'+day[state.lang]+'</span></label>';
     }).join('');
     return '<label class="opt'+(state.pkg===d.id?' sel':'')+'" data-pkg="'+d.id+'">'+
@@ -571,15 +655,20 @@ function renderPackages(){
   list.querySelectorAll('input[data-day]').forEach(c=>{
     c.addEventListener('change', ()=>{
       const [pid, did] = c.dataset.day.split(':');
-      state.days[pid] = state.days[pid] || {};
       const maxN = PKG_DAYS[pid];
-      const chosen = Object.keys(state.days[pid]).filter(k=>state.days[pid][k]).length;
-      if(c.checked && chosen >= maxN){
-        c.checked = false;
-        toast(t('toast.days'));
-        return;
+      if(maxN === 1){
+        // radio: exactly one day
+        state.days[pid] = {}; state.days[pid][did] = true;
+      } else {
+        state.days[pid] = state.days[pid] || {};
+        const chosen = Object.keys(state.days[pid]).filter(k=>state.days[pid][k]).length;
+        if(c.checked && chosen >= maxN){
+          c.checked = false;
+          toast(t('toast.days'));
+          return;
+        }
+        state.days[pid][did] = c.checked;
       }
-      state.days[pid][did] = c.checked;
       renderPackages();
       renderParking();
     });
@@ -620,6 +709,130 @@ function applyLang(){
   renderContent();
   renderPackages();
   renderParking();
+  if(el('payView') && !el('payView').hidden) renderPay();
+  if(el('doneView') && !el('doneView').hidden) renderDone();
+}
+
+/* ================= Views ================= */
+function showView(v){
+  el('regView').hidden  = v!=='reg';
+  el('payView').hidden  = v!=='pay';
+  el('doneView').hidden = v!=='done';
+  window.scrollTo(0,0);
+}
+
+/* ================= Payment ================= */
+function renderPay(){
+  const price = PRICES[state.tab][state.pkg];
+  const days = selectedDays().map(d=>d[state.lang]).join(', ');
+  const isCard = state.payMethod==='card';
+  el('payScreen').innerHTML =
+   '<p class="eyebrow">'+t('py.eyebrow')+'</p>'+
+   '<h1 class="page-title">'+t('py.title')+'</h1>'+
+   '<p class="page-sub">'+t('py.sub')+'</p>'+
+   '<div class="sum-line"><span class="lab">'+t('pkg.'+state.pkg)+'</span><span class="val">'+money(price)+'</span></div>'+
+   '<div class="sum-line"><span class="lab">'+t('py.days')+'</span><span class="val">'+esc(days)+'</span></div>'+
+   '<div class="sum-line"><span class="lab">'+t('py.pricetab')+'</span><span class="val">'+t('tab.'+state.tab)+'</span></div>'+
+   '<div class="sum-line total"><span class="lab">'+t('sm.total')+'</span><span class="val">'+money(price)+'</span></div>'+
+   '<div class="pay-methods" style="margin-top:20px">'+
+     '<div class="pay-opt '+(isCard?'sel':'')+'" data-pay="card"><div class="p-ico">💳</div><div class="p-name">'+t('py.card')+'</div><div class="p-desc">'+t('py.card.d')+'</div></div>'+
+     '<div class="pay-opt '+(!isCard?'sel':'')+'" data-pay="qr"><div class="p-ico">📱</div><div class="p-name">'+t('py.qr')+'</div><div class="p-desc">'+t('py.qr.d')+'</div></div>'+
+   '</div>'+
+   '<div id="payDetail" style="margin-top:6px"></div>'+
+   '<label class="checkbox" style="margin:18px 0 4px"><input type="checkbox" id="taxCb"'+(state.tax?' checked':'')+'> <span>'+t('py.tax')+'</span></label>'+
+   '<div id="taxFields" class="'+(state.tax?'':'hidden')+'">'+
+     '<div class="field full"><label>'+t('py.tax.name')+'</label><input class="control" id="tax_name"></div>'+
+     '<div class="grid"><div class="field"><label>'+t('py.tax.taxid')+'</label><input class="control" id="tax_id"></div>'+
+     '<div class="field"><label>'+t('py.tax.addr')+'</label><input class="control" id="tax_addr"></div></div>'+
+   '</div>'+
+   '<div class="card" style="margin:18px 0;background:var(--panel-2)"><div class="card-pad" style="padding:16px 18px">'+
+     '<h4 style="margin:0 0 10px;font-size:14px">'+t('py.terms.t')+'</h4>'+
+     '<p class="note" style="margin-bottom:10px"><b>'+t('py.t1.t')+'</b><br>'+t('py.t1.b')+'</p>'+
+     '<p class="note" style="margin-bottom:10px"><b>'+t('py.t2.t')+'</b><br>'+t('py.t2.b')+'</p>'+
+     '<p class="note"><b>'+t('py.t3.t')+'</b><br>'+t('py.t3.b')+'</p>'+
+   '</div></div>'+
+   '<div class="actions"><button type="button" class="btn btn-ghost" id="payBack">'+t('btn.back')+'</button>'+
+     '<div class="spacer"></div>'+
+     '<button type="button" class="btn btn-primary btn-lg" id="confirmPay">'+t('py.confirm')+' · '+money(price)+'</button></div>';
+  renderPayDetail();
+  el('payScreen').querySelectorAll('[data-pay]').forEach(o=>o.onclick=()=>{
+    state.payMethod=o.dataset.pay;
+    el('payScreen').querySelectorAll('.pay-opt').forEach(p=>p.classList.toggle('sel',p===o));
+    renderPayDetail();
+  });
+  el('taxCb').onchange=(e)=>{ state.tax=e.target.checked; el('taxFields').classList.toggle('hidden',!e.target.checked); };
+  el('payBack').onclick=()=>showView('reg');
+  el('confirmPay').onclick=()=>finishPayment();
+}
+function renderPayDetail(){
+  const box = el('payDetail'); if(!box) return;
+  if(state.payMethod==='card'){
+    box.innerHTML =
+      '<div class="field full"><label>'+t('py.card.num')+'</label><input class="control" placeholder="0000 0000 0000 0000" inputmode="numeric"></div>'+
+      '<div class="grid"><div class="field"><label>'+t('py.card.exp')+'</label><input class="control" placeholder="MM/YY"></div>'+
+      '<div class="field"><label>'+t('py.card.cvv')+'</label><input class="control" placeholder="123" inputmode="numeric"></div></div>'+
+      '<div class="field full"><label>'+t('py.card.holder')+'</label><input class="control" placeholder="NAME SURNAME"></div>';
+  } else {
+    box.innerHTML = '<div class="qr-box"><div class="qr-img">'+qrSvg()+'</div>'+
+      '<p style="margin:12px 0 0;font-size:13px;color:var(--txt-dim)">'+t('py.qr.scan')+'</p></div>';
+  }
+}
+function qrSvg(){
+  let cells=''; const n=17; let s=12345;
+  const rnd=()=>{ s=(s*1103515245+12345)&0x7fffffff; return s/0x7fffffff; };
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const corner=(x<3&&y<3)||(x>=n-3&&y<3)||(x<3&&y>=n-3);
+    if(corner||rnd()>0.55) cells+='<rect x="'+(x*9)+'" y="'+(y*9)+'" width="9" height="9"/>';
+  }
+  return '<svg viewBox="0 0 '+(n*9)+' '+(n*9)+'" width="150" height="150" fill="#000">'+cells+'</svg>';
+}
+function finishPayment(){
+  const price = PRICES[state.tab][state.pkg];
+  const f = el('regForm');
+  const ref = 'SUVIP-'+Math.random().toString(36).slice(2,7).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
+  state.result = {
+    ref,
+    name:(f.name.value+' '+f.surname.value).trim(),
+    email:f.email.value.trim(),
+    pkg:t('pkg.'+state.pkg),
+    days:selectedDays().map(d=>d[state.lang]).join(', '),
+    amount:price
+  };
+  showView('done'); renderDone();
+}
+function renderDone(){
+  const r = state.result || {};
+  el('doneScreen').innerHTML =
+   '<div class="success-wrap">'+
+     '<div class="success-ico">🏁</div>'+
+     '<h1 class="page-title">'+t('dn.title')+'</h1>'+
+     '<p class="page-sub">'+t('dn.sub')+(r.email?(' · '+t('dn.email')+' '+esc(r.email)):'')+'</p>'+
+     '<div class="receipt">'+
+       '<div class="r-head">SOUPED UP · VIP VILLAGE · OFFICIAL RECEIPT</div>'+
+       '<div class="r-row"><span class="rl">'+t('dn.ref')+'</span><span class="rv ref-num">'+esc(r.ref)+'</span></div>'+
+       '<div class="r-row"><span class="rl">'+t('dn.name')+'</span><span class="rv">'+esc(r.name||'-')+'</span></div>'+
+       '<div class="r-row"><span class="rl">'+t('dn.pkg')+'</span><span class="rv">'+esc(r.pkg||'-')+'</span></div>'+
+       '<div class="r-row"><span class="rl">'+t('dn.days')+'</span><span class="rv">'+esc(r.days||'-')+'</span></div>'+
+       '<div class="r-row"><span class="rl">'+t('dn.amount')+'</span><span class="rv" style="color:var(--amber)">'+money(r.amount||0)+'</span></div>'+
+     '</div>'+
+     '<div class="actions" style="justify-content:center">'+
+       '<button type="button" class="btn btn-ghost" onclick="window.print()">'+t('dn.print')+'</button>'+
+       '<button type="button" class="btn btn-primary" id="newReg">'+t('dn.new')+'</button>'+
+     '</div>'+
+   '</div>';
+  el('newReg').onclick=()=>resetAll();
+}
+function resetAll(){
+  state.pkg=null; state.days={}; state.plates={}; state.payMethod='card'; state.tax=false; state.result=null;
+  const f = el('regForm'); if(f) f.reset();
+  document.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('sel'));
+  document.querySelectorAll('input[data-chan]').forEach(c=>{
+    const inp=document.querySelector('input[data-chan-input="'+c.dataset.chan+'"]');
+    if(inp){ inp.style.display='none'; inp.value=''; }
+  });
+  document.querySelectorAll('.field.invalid').forEach(x=>x.classList.remove('invalid'));
+  renderPackages(); renderParking();
+  showView('reg');
 }
 
 /* ================= Tabs ================= */
@@ -706,7 +919,8 @@ document.getElementById('regForm').addEventListener('submit', e=>{
     consent: true
   };
   console.log('Registration payload:', payload);
-  toast(t('toast.ok'), true);
+  showView('pay');
+  renderPay();
 });
 
 /* ================= Init ================= */
