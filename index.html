@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Souped Up VIP Village 2026</title>
+<meta name="description" content="ซื้อบัตร Souped Up Grand Prix VIP Village / Buy Souped Up Grand Prix VIP Village tickets" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWr5xt7DXCXFxjLu4t3ojBOX+7a9AtM7VmWXdHdr0BpsHy4vsg7WdTmoQ8lZg==" crossorigin="" />
+<style>
+:root{
+  --bg:#0a0b0d;
+  --bg-2:#111318;
+  --panel:#15181e;
+  --panel-2:#1b1f27;
+  --line:#2a2f3a;
+  --line-2:#363c49;
+  --txt:#e8eaee;
+  --txt-dim:#9aa1ad;
+  --txt-faint:#6b7280;
+  --red:#e10600;
+  --red-2:#ff2b1c;
+  --mint:#6FFFE8;
+  --lime:#D1FF03;
+  --navy-deep:#0C142A;
+  --mint-grad:linear-gradient(115deg,#6FFFE8 0%,#9dffb0 48%,#D1FF03 100%);
+  --mint-ink:#0C142A;
+  --mint-glow:rgba(141,255,150,.34);
+  --mint-soft:rgba(111,255,232,.16);
+  --amber:#ffb400;
+  --green:#25c26e;
+  --gold:#d8bd7f;
+  --gold-2:#c8a24a;
+  --carbon:repeating-linear-gradient(45deg,#0e0f12 0 2px,#121317 2px 4px);
+  --radius:12px;
+  --shadow:0 12px 40px rgba(0,0,0,.55);
+  --font:'Rajdhani','Noto Sans Thai',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 50% -200px,rgba(225,6,0,.10),transparent 60%),
+    radial-gradient(900px 520px at 0% 100%,rgba(111,255,232,.07),transparent 60%),
+    radial-gradient(900px 520px at 100% 100%,rgba(209,255,3,.06),transparent 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:var(--font);
+  min-height:100vh;
+  letter-spacing:.2px;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+button{font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px clamp(16px,4vw,48px);
+  background:rgba(10,11,13,.82);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:2px}
+.brand b{font-size:19px;background:linear-gradient(120deg,var(--gold),#f2e2b6 50%,var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font-size:10px;letter-spacing:3px;color:var(--txt-dim);font-weight:600}
+.lang-switch{display:flex;border:1px solid var(--line-2);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.lang-switch button{
+  background:transparent;color:var(--txt-dim);border:0;padding:7px 15px;
+  font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;transition:.15s;
+}
+.lang-switch button.active{background:var(--mint);color:var(--navy-deep)}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:960px;margin:0 auto;padding:clamp(16px,4vw,32px) clamp(14px,4vw,20px) 80px}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;margin-bottom:22px;
+}
+.card-pad{padding:clamp(20px,4vw,34px)}
+.speed-line{height:4px;background:linear-gradient(90deg,var(--mint),var(--lime),transparent)}
+
+h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;letter-spacing:.4px}
+.sec-sub{color:var(--txt-dim);margin:0 0 20px;font-size:14px}
+.eyebrow{color:var(--lime);font-weight:700;letter-spacing:3px;font-size:12px;text-transform:uppercase;margin:0 0 8px}
+
+/* ---------- Top tabs (Early Bird / Normal) ---------- */
+.pkg-tabs{display:flex;background:var(--bg);border-radius:12px;padding:5px;gap:5px;margin:0 auto 22px;border:1px solid var(--line);max-width:960px}
+.pkg-tabs button{flex:1;background:transparent;border:0;color:var(--txt-dim);padding:14px 10px;border-radius:8px;font-weight:700;font-size:clamp(14px,2.6vw,16px);letter-spacing:.5px;cursor:pointer;transition:.15s}
+.pkg-tabs button.active{background:var(--mint-grad);color:var(--mint-ink);box-shadow:0 4px 14px var(--mint-glow)}
+
+/* ---------- Banner ---------- */
+.banner{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-bottom:22px;box-shadow:var(--shadow);background:#000}
+.banner svg{display:block;width:100%;height:auto}
+
+/* ---------- Forms ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid .full{grid-column:1/-1}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:2px}
+.field label{font-size:13px;color:var(--txt-dim);font-weight:600;letter-spacing:.3px}
+.field label .req{color:var(--red-2);margin-left:3px}
+.field .hint{font-size:11px;color:var(--txt-faint);line-height:1.5}
+.control{
+  background:var(--bg);border:1px solid var(--line-2);color:var(--txt);
+  border-radius:9px;padding:12px 13px;font-size:15px;width:100%;transition:.15s;outline:none;
+}
+.control::placeholder{color:#5a616e}
+.control:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+.field.invalid .control{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,6,0,.15)}
+.err-msg{color:var(--red-2);font-size:11px;display:none}
+.field.invalid .err-msg{display:block}
+
+.checkbox{display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;font-size:14px;color:var(--txt-dim);line-height:1.5}
+.checkbox input{margin-top:2px;width:17px;height:17px;accent-color:var(--mint);flex:0 0 auto}
+.chan-input{margin-top:8px}
+
+.info-box{
+  display:flex;gap:10px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.28);
+  border-radius:9px;padding:11px 13px;font-size:12.5px;color:#e9d9b3;line-height:1.6;margin:6px 0;
+}
+.info-box .ico{color:var(--amber);flex:0 0 auto}
+.note{font-size:12.5px;color:var(--amber);background:rgba(255,180,0,.06);border-left:3px solid var(--amber);padding:8px 12px;border-radius:0 6px 6px 0;line-height:1.55;margin:4px 0}
+
+/* ---------- Content (price cards) ---------- */
+.price-intro{font-size:15px;color:var(--txt);line-height:1.7;margin:0 0 18px}
+.price-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.price-cards{grid-template-columns:1fr}}
+.price-card{background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.price-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--mint-grad)}
+.price-card .pc-name{font-size:14px;color:var(--txt-dim);font-weight:600;letter-spacing:.4px}
+.price-card .pc-price{font-size:clamp(26px,5vw,34px);font-weight:800;color:var(--gold);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.price-card .pc-unit{font-size:13px;color:var(--txt-faint)}
+.cond-list{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cond-list li{display:flex;gap:9px;font-size:13px;color:#e9d9b3;line-height:1.55}
+.cond-list li::before{content:"★";color:var(--amber);flex:0 0 auto}
+
+/* ---------- Venue ---------- */
+.venue-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+@media(max-width:720px){.venue-grid{grid-template-columns:1fr}}
+.venue-info .v-name{font-size:19px;font-weight:700;margin:6px 0 4px}
+.venue-info .v-en{font-size:14px;color:var(--txt-dim);margin:0 0 16px}
+.map-link{display:inline-flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line-2);color:var(--mint);text-decoration:none;padding:11px 16px;border-radius:9px;font-weight:700;font-size:14px;transition:.15s}
+.map-link:hover{border-color:var(--mint);background:var(--mint-soft)}
+.map-link svg{width:18px;height:18px;flex:0 0 auto}
+#leafMap{width:100%;min-height:280px;height:100%;border-radius:12px;border:1px solid var(--line-2);z-index:1}
+@media(max-width:720px){#leafMap{min-height:260px}}
+.leaflet-popup-content a{color:#0645ad;font-weight:700}
+
+/* ---------- Package selection ---------- */
+.pkg-list{display:flex;flex-direction:column;gap:12px}
+.opt{display:block;border:1.5px solid var(--line-2);border-radius:11px;padding:16px 18px;cursor:pointer;transition:.15s;background:var(--bg)}
+.opt:hover{border-color:var(--txt-dim)}
+.opt.sel{border-color:var(--mint);background:var(--mint-soft);box-shadow:0 0 0 3px rgba(111,255,232,.14)}
+.opt .opt-top{display:flex;align-items:center;gap:12px}
+.opt input[type=radio]{width:18px;height:18px;accent-color:var(--mint);flex:0 0 auto}
+.opt .opt-name{font-weight:700;font-size:15.5px;flex:1}
+.opt .opt-price{font-weight:800;font-size:18px;color:var(--gold);font-variant-numeric:tabular-nums}
+.opt .opt-price small{font-size:12px;color:var(--txt-faint);font-weight:600}
+.day-pick{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-2);display:none}
+.opt.sel .day-pick{display:block}
+.day-pick .dp-label{font-size:12.5px;color:var(--txt-dim);font-weight:600;margin-bottom:10px}
+.day-grid{display:flex;flex-wrap:wrap;gap:10px}
+.day-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13.5px;color:var(--txt);background:var(--panel-2);transition:.15s;user-select:none}
+.day-chip:hover{border-color:var(--mint)}
+.day-chip.on{border-color:var(--mint);background:var(--mint-soft)}
+.day-chip input{width:16px;height:16px;accent-color:var(--mint)}
+.day-chip.disabled{opacity:.4;cursor:not-allowed}
+
+/* ---------- Radio group (tshirt / consent) ---------- */
+.radio-row{display:flex;flex-wrap:wrap;gap:12px}
+.radio-opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line-2);border-radius:10px;padding:13px 16px;cursor:pointer;background:var(--bg);transition:.15s;font-size:14.5px}
+.radio-opt:hover{border-color:var(--txt-dim)}
+.radio-opt.sel{border-color:var(--mint);background:var(--mint-soft);box-shadow:0 0 0 3px rgba(111,255,232,.14)}
+.radio-opt input{width:18px;height:18px;accent-color:var(--mint);flex:0 0 auto}
+
+/* ---------- Parking ---------- */
+#parkFields{display:flex;flex-direction:column;gap:14px}
+.park-empty{font-size:13px;color:var(--txt-faint);font-style:italic}
+
+/* ---------- Buffet ---------- */
+.buffet-img{border-radius:12px;overflow:hidden;border:1px solid var(--line-2);margin-bottom:18px;background:var(--panel-2)}
+.buffet-img img{display:block;width:100%;height:auto}
+.buffet-ph{aspect-ratio:16/7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--txt-faint);background:var(--carbon)}
+.buffet-ph svg{width:48px;height:48px;color:var(--mint)}
+.buffet-ph span{font-size:13px;letter-spacing:1px}
+
+/* ---------- Consent ---------- */
+.consent-text{font-size:13px;color:var(--txt-dim);line-height:1.75;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.consent-text p{margin:0 0 10px}
+.consent-text p:last-child{margin-bottom:0}
+.consent-text a{color:var(--mint);font-weight:600}
+
+/* ---------- Buttons ---------- */
+.btn{
+  border:0;border-radius:9px;padding:13px 22px;font-weight:700;font-size:15px;letter-spacing:.5px;
+  cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px;justify-content:center;
+}
+.btn-primary{background:var(--mint-grad);color:var(--mint-ink);box-shadow:0 6px 18px var(--mint-glow)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 26px var(--mint-glow),0 0 0 1px rgba(111,255,232,.4)}
+.btn-block{width:100%}
+.btn-lg{padding:16px 26px;font-size:17px}
+
+/* ---------- Footer ---------- */
+.site-foot{border-top:1px solid var(--line);background:rgba(10,11,13,.6);margin-top:10px}
+.foot-inner{max-width:960px;margin:0 auto;padding:26px clamp(16px,4vw,20px);display:flex;flex-direction:column;gap:6px;color:var(--txt-dim);font-size:13.5px;line-height:1.7}
+.foot-inner .f-title{color:var(--lime);font-weight:700;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin-bottom:4px}
+.foot-inner a{color:var(--mint);text-decoration:none;font-weight:600}
+.foot-copy{text-align:center;color:var(--txt-faint);font-size:11px;padding:16px;letter-spacing:1px;border-top:1px solid var(--line)}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);padding:13px 22px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:300;font-size:14px;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <b>SOUPED UP · VIP VILLAGE</b>
+  </div>
+  <div class="lang-switch">
+    <button data-setlang="th" class="active">TH</button>
+    <button data-setlang="en">EN</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TOP TABS: Early Bird / Normal Price ============ -->
+  <div class="pkg-tabs" id="pkgTabs">
+    <button data-tab="early" class="active" data-i18n="tab.early">Early Bird</button>
+    <button data-tab="normal" data-i18n="tab.normal">Normal Price</button>
+  </div>
+
+  <!-- ============ 1. BANNER (attachment 1) ============ -->
+  <!-- To use the exact artwork, drop the PNG in asset/banner.png and replace this SVG with:
+       <div class="banner"><img src="asset/banner.png" alt="Souped Up VIP Village"></div> -->
+  <div class="banner" aria-label="Souped Up Grand Prix VIP Village">
+    <svg viewBox="0 0 1000 300" role="img" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#e9d8a6"/>
+          <stop offset="0.5" stop-color="#d8bd7f"/>
+          <stop offset="1" stop-color="#c8a24a"/>
+        </linearGradient>
+      </defs>
+      <rect width="1000" height="300" fill="#000"/>
+      <g fill="url(#gold)" font-family="Rajdhani, sans-serif">
+        <text x="60" y="150" font-size="72" font-weight="700" font-style="italic" letter-spacing="1">SOUPED UP</text>
+        <text x="62" y="196" font-size="34" font-weight="600" letter-spacing="2">Grandprix</text>
+        <rect x="470" y="70" width="3" height="160" opacity="0.5"/>
+        <text x="520" y="180" font-size="150" font-weight="700" letter-spacing="4">VIP</text>
+        <text x="522" y="240" font-size="52" font-weight="600" letter-spacing="18">VILLAGE</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ 2. CONTENT / PRICING ============ -->
+  <div class="card">
+    <div class="speed-line"></div>
+    <div class="card-pad">
+      <div class="eyebrow" data-i18n="content.eyebrow">Souped Up VIP Village</div>
+      <div id="contentBlock"></div>
+    </div>
+  </div>
+
+  <!-- ============ 3. VENUE ============ -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="venue.title">สถานที่จัดงาน</h2>
+      <p class="sec-sub" data-i18n="venue.sub">Venue</p>
+      <div class="venue-grid">
+        <div class="venue-info">
+          <div class="eyebrow" data-i18n="venue.label">สถานที่จัดงาน</div>
+          <div class="v-name" data-i18n="venue.name">บางกอกแดร็ก อเวนิว ประเทศไทย</div>
+          <p class="v-en">Bangkok Drag Avenue, Thailand</p>
+          <a class="map-link" href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span data-i18n="venue.open">เปิดใน Google Maps</span>
+          </a>
+        </div>
+        <div id="leafMap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REGISTRATION FORM ============ -->
+  <form id="regForm" novalidate>
+
+  <!-- 4. APPLICANT INFO -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="ap.title">ข้อมูลผู้สมัคร</h2>
+      <p class="sec-sub" data-i18n="ap.sub">Applicant Information</p>
+      <div class="grid">
+        <div class="field">
+          <label data-i18n="ap.name">ชื่อ (Name)<span class="req">*</span></label>
+          <input class="control" name="name" data-i18n-ph="ap.name.ph" required>
+        </div>
+        <div class="field">
+          <label data-i18n="ap.surname">นามสกุล (Surname)<span class="req">*</span></label>
+          <input class="control" name="surname" data-i18n-ph="ap.surname.ph" required>
+        </div>
+        <div class="field">
+          <label data-i18n="ap.phone">เบอร์โทรศัพท์ (Mobile Phone)<span class="req">*</span></label>
+          <input class="control" name="phone" type="tel" inputmode="tel" data-i18n-ph="ap.phone.ph" required>
+        </div>
+        <div class="field">
+          <label data-i18n="ap.email">อีเมล (Email)<span class="req">*</span></label>
+          <input class="control" name="email" type="email" data-i18n-ph="ap.email.ph" required>
+        </div>
+        <div class="field full">
+          <label data-i18n="ap.chan">ช่องทางการติดต่อเพิ่มเติม (Additional contact)</label>
+          <div id="chanBox" style="display:flex;flex-direction:column;gap:10px;margin-top:2px">
+            <div>
+              <label class="checkbox"><input type="checkbox" data-chan="Line"> <span>Line</span></label>
+              <input class="control chan-input" data-chan-input="Line" placeholder="Line ID" style="display:none">
+            </div>
+            <div>
+              <label class="checkbox"><input type="checkbox" data-chan="WeChat"> <span>WeChat</span></label>
+              <input class="control chan-input" data-chan-input="WeChat" placeholder="WeChat ID" style="display:none">
+            </div>
+            <div>
+              <label class="checkbox"><input type="checkbox" data-chan="WhatsApp"> <span>WhatsApp</span></label>
+              <input class="control chan-input" data-chan-input="WhatsApp" placeholder="WhatsApp" style="display:none">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PACKAGE -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="pkg.title">ประเภทแพ็กเกจ VIP Village</h2>
+      <p class="sec-sub" data-i18n="pkg.sub">VIP Village Package</p>
+      <div class="pkg-list" id="pkgList"></div>
+    </div>
+  </div>
+
+  <!-- 6. T-SHIRT -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="shirt.title">ไซส์เสื้อ</h2>
+      <p class="sec-sub" data-i18n="shirt.label">โปรดระบุไซส์เสื้อ (T-Shirt Size)</p>
+      <div class="radio-row">
+        <label class="radio-opt"><input type="radio" name="shirt" value="L"><span data-i18n="shirt.l">L - รอบอก 44" (Chest 44")</span></label>
+        <label class="radio-opt"><input type="radio" name="shirt" value="XL"><span data-i18n="shirt.xl">XL - รอบอก 48" (Chest 48")</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. PARKING -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="park.title">สำรองพื้นที่จอดรถ</h2>
+      <p class="sec-sub" data-i18n="park.sub">Reserve Parking</p>
+      <div class="info-box">
+        <span class="ico">ⓘ</span>
+        <span data-i18n="park.info">สงวนสิทธิ์ให้จอดเฉพาะเลขทะเบียนที่ลงทะเบียนไว้เท่านั้น / Reserved parking for registered license plates only</span>
+      </div>
+      <div id="parkFields" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- 8. BUFFET -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="buffet.title">อาหารบุฟเฟต์</h2>
+      <p class="sec-sub" data-i18n="buffet.sub">Buffet Catering</p>
+      <!-- To use the exact photo, drop it in asset/buffet.jpg and replace the .buffet-ph div with:
+           <img src="asset/buffet.jpg" alt="Buffet Catering"> -->
+      <div class="buffet-img">
+        <div class="buffet-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18"/><path d="M12 11V4"/><path d="M5 11a7 7 0 0 1 14 0"/><path d="M4 15h16a1 1 0 0 1 1 1 3 3 0 0 1-3 3H6a3 3 0 0 1-3-3 1 1 0 0 1 1-1z"/></svg>
+          <span data-i18n="buffet.ph">Buffet Catering</span>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="field full">
+          <label data-i18n="buffet.avoid">ท่านไม่รับประทานอาหารประเภทใด (What kind of food do you not eat?)</label>
+          <input class="control" name="foodAvoid" data-i18n-ph="buffet.avoid.ph" placeholder="ระบุรายการ หรือเว้นว่าง">
+        </div>
+        <div class="field full">
+          <label data-i18n="buffet.allergy">หากแพ้อาหารประเภทใดโปรดระบุ (If you are allergic to any type of food, please specify.)</label>
+          <input class="control" name="foodAllergy" data-i18n-ph="buffet.allergy.ph" placeholder="ระบุรายการ หรือเว้นว่าง">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. CONSENT -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="consent.title">ยินยอมให้ข้อมูลส่วนบุคคล</h2>
+      <p class="sec-sub" data-i18n="consent.sub">Information / Consent</p>
+      <div class="consent-text">
+        <p data-i18n="consent.th">ทั้งนี้ข้อมูลส่วนบุคคลดังกล่าวเป็นข้อมูลที่จำเป็นสำหรับการทำงานของบริษัท กรังด์ปรีซ์ อินเตอร์เนชั่นแนล จำกัด (มหาชน) หากไม่มีข้อมูลดังกล่าว อาจส่งผลต่อการให้บริการกับผู้สมัคร ทั้งนี้ผู้สมัครเป็นผู้มีสิทธิเลือกได้ว่า จะบันทึกข้อมูลส่วนบุคคลอื่นใด และยินดีจะเปิดเผยข้อมูลดังกล่าวกับบุคคลหรือหน่วยงานอื่นหรือไม่</p>
+        <p data-i18n="consent.en">The aforementioned personal data is necessary for the operations of Grand Prix International Public Company Limited. Without such data, it may affect the services provided to the applicant. The applicant retains the right to decide whether to provide any additional personal data and whether to consent to the disclosure of such information to other persons or entities.</p>
+        <p><a href="https://www.grandprix.co.th/privacy-policy/" target="_blank" rel="noopener" data-i18n="consent.policy">นโยบายความเป็นส่วนตัว / Privacy Policy</a></p>
+      </div>
+      <div class="radio-row">
+        <label class="radio-opt"><input type="radio" name="consent" value="yes" required><span data-i18n="consent.agree">ยินยอม (I consent)</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. SUBMIT -->
+  <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="submit">ยืนยันการสมัคร (Submit)</button>
+
+  </form>
+</div>
+
+<!-- 11. FOOTER -->
+<footer class="site-foot">
+  <div class="foot-inner">
+    <div class="f-title" data-i18n="foot.contact">Contact Center</div>
+    <div>Line : <a href="https://line.me/R/ti/p/@xoautosport" target="_blank" rel="noopener">@xoautosport</a></div>
+    <div><span data-i18n="foot.tel">โทร (Tel)</span> : <a href="tel:0659855145">06-5985-5145</a></div>
+    <div data-i18n="foot.date">วันจันทร์ (Mon.) - ศุกร์ (Fri.) : 08.30 - 17.00 น. (hrs.)</div>
+  </div>
+  <div class="foot-copy">© 2026 Grand Prix International Public Company Limited · Souped Up VIP Village</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfg==" crossorigin=""></script>
+<script>
+/* ================= State ================= */
+const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{} };
+
+const PRICES = {
+  early:  { p1:3700, p2:7400, p3:7900 },
+  normal: { p1:3900, p2:8400, p3:8900 }
+};
+const PKG_DAYS = { p1:1, p2:2, p3:3 };
+const DAYS = [
+  { id:'d5', th:'5 ธันวาคม 2026', en:'5 December 2026' },
+  { id:'d6', th:'6 ธันวาคม 2026', en:'6 December 2026' },
+  { id:'d7', th:'7 ธันวาคม 2026', en:'7 December 2026' }
+];
+
+/* ================= i18n ================= */
+const L = {
+  th:{
+    'tab.early':'Early Bird','tab.normal':'Normal Price',
+    'content.eyebrow':'Souped Up VIP Village',
+    'venue.title':'สถานที่จัดงาน','venue.sub':'Venue','venue.label':'สถานที่จัดงาน',
+    'venue.name':'บางกอกแดร็ก อเวนิว ประเทศไทย','venue.open':'เปิดใน Google Maps',
+    'ap.title':'ข้อมูลผู้สมัคร','ap.sub':'Applicant Information',
+    'ap.name':'ชื่อ (Name)','ap.name.ph':'กรอกชื่อ',
+    'ap.surname':'นามสกุล (Surname)','ap.surname.ph':'กรอกนามสกุล',
+    'ap.phone':'เบอร์โทรศัพท์ (Mobile Phone)','ap.phone.ph':'เช่น 08x-xxx-xxxx',
+    'ap.email':'อีเมล (Email)','ap.email.ph':'name@email.com',
+    'ap.chan':'ช่องทางการติดต่อเพิ่มเติม (Additional contact)',
+    'pkg.title':'ประเภทแพ็กเกจ VIP Village','pkg.sub':'VIP Village Package',
+    'pkg.days.label':'จะมาวันไหน? (เลือกได้ {n} วัน)',
+    'pkg.p1':'แพ็กเกจ 1 วัน (1 Day Package)','pkg.p2':'แพ็กเกจ 2 วัน (2 Day Package)','pkg.p3':'แพ็กเกจ 3 วัน (3 Day Package)',
+    'shirt.title':'ไซส์เสื้อ','shirt.label':'โปรดระบุไซส์เสื้อ (T-Shirt Size)',
+    'shirt.l':'L - รอบอก 44" (Chest 44")','shirt.xl':'XL - รอบอก 48" (Chest 48")',
+    'park.title':'สำรองพื้นที่จอดรถ','park.sub':'Reserve Parking',
+    'park.info':'สงวนสิทธิ์ให้จอดเฉพาะเลขทะเบียนที่ลงทะเบียนไว้เท่านั้น / Reserved parking for registered license plates only',
+    'park.plate':'โปรดระบุทะเบียนรถ (Please Provide License Plate)','park.plate.ph':'ระบุเลขทะเบียนรถ',
+    'park.empty':'กรุณาเลือกวันที่จะเข้าร่วมในหัวข้อแพ็กเกจก่อน',
+    'buffet.title':'อาหารบุฟเฟต์','buffet.sub':'Buffet Catering','buffet.ph':'ภาพอาหารบุฟเฟต์',
+    'buffet.avoid':'ท่านไม่รับประทานอาหารประเภทใด (What kind of food do you not eat?)','buffet.avoid.ph':'ระบุรายการ หรือเว้นว่าง',
+    'buffet.allergy':'หากแพ้อาหารประเภทใดโปรดระบุ (If you are allergic to any type of food, please specify.)','buffet.allergy.ph':'ระบุรายการ หรือเว้นว่าง',
+    'consent.title':'ยินยอมให้ข้อมูลส่วนบุคคล','consent.sub':'ข้อมูลผู้สมัคร (Information)',
+    'consent.th':'ทั้งนี้ข้อมูลส่วนบุคคลดังกล่าวเป็นข้อมูลที่จำเป็นสำหรับการทำงานของบริษัท กรังด์ปรีซ์ อินเตอร์เนชั่นแนล จำกัด (มหาชน) หากไม่มีข้อมูลดังกล่าว อาจส่งผลต่อการให้บริการกับผู้สมัคร ทั้งนี้ผู้สมัครเป็นผู้มีสิทธิเลือกได้ว่า จะบันทึกข้อมูลส่วนบุคคลอื่นใด และยินดีจะเปิดเผยข้อมูลดังกล่าวกับบุคคลหรือหน่วยงานอื่นหรือไม่',
+    'consent.en':'The aforementioned personal data is necessary for the operations of Grand Prix International Public Company Limited. Without such data, it may affect the services provided to the applicant. The applicant retains the right to decide whether to provide any additional personal data and whether to consent to the disclosure of such information to other persons or entities.',
+    'consent.policy':'นโยบายความเป็นส่วนตัว (Privacy Policy)','consent.agree':'ยินยอม (I consent)',
+    'submit':'ยืนยันการสมัคร (Submit)',
+    'foot.contact':'Contact Center','foot.tel':'โทร (Tel)','foot.date':'วันจันทร์ (Mon.) - ศุกร์ (Fri.) : 08.30 - 17.00 น. (hrs.)',
+    'perday':'บาท / วัน','per3':'บาท / 3 วัน','baht':'บาท',
+    'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ'
+  },
+  en:{
+    'tab.early':'Early Bird','tab.normal':'Normal Price',
+    'content.eyebrow':'Souped Up VIP Village',
+    'venue.title':'Venue','venue.sub':'สถานที่จัดงาน','venue.label':'Venue',
+    'venue.name':'Bangkok Drag Avenue, Thailand','venue.open':'Open in Google Maps',
+    'ap.title':'Applicant Information','ap.sub':'ข้อมูลผู้สมัคร',
+    'ap.name':'Name (ชื่อ)','ap.name.ph':'Enter your name',
+    'ap.surname':'Surname (นามสกุล)','ap.surname.ph':'Enter your surname',
+    'ap.phone':'Mobile Phone (เบอร์โทรศัพท์)','ap.phone.ph':'e.g. 08x-xxx-xxxx',
+    'ap.email':'Email (อีเมล)','ap.email.ph':'name@email.com',
+    'ap.chan':'Additional contact channels (ช่องทางการติดต่อเพิ่มเติม)',
+    'pkg.title':'VIP Village Package','pkg.sub':'ประเภทแพ็กเกจ',
+    'pkg.days.label':'Which day(s) will you attend? (choose {n})',
+    'pkg.p1':'1 Day Package (แพ็กเกจ 1 วัน)','pkg.p2':'2 Day Package (แพ็กเกจ 2 วัน)','pkg.p3':'3 Day Package (แพ็กเกจ 3 วัน)',
+    'shirt.title':'T-Shirt Size','shirt.label':'Please specify T-Shirt Size (โปรดระบุไซส์เสื้อ)',
+    'shirt.l':'L - Chest 44" (รอบอก 44")','shirt.xl':'XL - Chest 48" (รอบอก 48")',
+    'park.title':'Reserve Parking','park.sub':'สำรองพื้นที่จอดรถ',
+    'park.info':'Reserved parking for registered license plates only / สงวนสิทธิ์ให้จอดเฉพาะเลขทะเบียนที่ลงทะเบียนไว้เท่านั้น',
+    'park.plate':'Please Provide License Plate (โปรดระบุทะเบียนรถ)','park.plate.ph':'Enter license plate',
+    'park.empty':'Please select your attendance day(s) in the Package section first.',
+    'buffet.title':'Buffet Catering','buffet.sub':'อาหารบุฟเฟต์','buffet.ph':'Buffet Catering image',
+    'buffet.avoid':'What kind of food do you not eat? (ท่านไม่รับประทานอาหารประเภทใด)','buffet.avoid.ph':'Specify items or leave blank',
+    'buffet.allergy':'If you are allergic to any type of food, please specify. (หากแพ้อาหารประเภทใดโปรดระบุ)','buffet.allergy.ph':'Specify items or leave blank',
+    'consent.title':'Consent to Personal Data','consent.sub':'Information (ข้อมูลผู้สมัคร)',
+    'consent.th':'The aforementioned personal data is necessary for the operations of Grand Prix International Public Company Limited. Without such data, it may affect the services provided to the applicant.',
+    'consent.en':'The applicant retains the right to decide whether to provide any additional personal data and whether to consent to the disclosure of such information to other persons or entities.',
+    'consent.policy':'Privacy Policy (นโยบายความเป็นส่วนตัว)','consent.agree':'I consent (ยินยอม)',
+    'submit':'Submit (ยืนยันการสมัคร)',
+    'foot.contact':'Contact Center','foot.tel':'Tel','foot.date':'Mon. - Fri. : 08.30 - 17.00 hrs.',
+    'perday':'THB / day','per3':'THB / 3 days','baht':'THB',
+    'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.'
+  }
+};
+function t(k){ return (L[state.lang][k] !== undefined ? L[state.lang][k] : k); }
+function fmt(n){ return n.toLocaleString(state.lang==='th'?'th-TH':'en-US'); }
+
+/* ================= Content block ================= */
+function renderContent(){
+  const p = PRICES[state.tab];
+  const box = document.getElementById('contentBlock');
+  if(state.tab==='early'){
+    const intro = state.lang==='th'
+      ? 'Souped Up VIP Village พร้อมให้จับจองแล้ววันนี้ กับโปรแกรม Early Bird สุดคุ้ม'
+      : 'Souped Up VIP Village is open for booking today with the great-value Early Bird program.';
+    const c1 = state.lang==='th'
+      ? 'โปรแกรม Early Bird จอง และชำระภายในวันนี้ - 7 พฤศจิกายน 2568 เท่านั้น'
+      : 'Early Bird: book and pay by today – 7 November 2025 only.';
+    const c2 = state.lang==='th'
+      ? 'จำกัดสิทธิ์เพียง 20 ที่นั่ง/วัน หรือจนกว่าที่นั่งจะเต็มตามสิทธิ์ที่ระบุ'
+      : 'Limited to 20 seats/day, or until seats are fully booked.';
+    box.innerHTML =
+      '<p class="price-intro">'+intro+'</p>'+
+      '<div class="price-cards">'+
+        card(state.lang==='th'?'แพ็กเกจ 1 วัน':'1 Day Package', p.p1, 'perday')+
+        card(state.lang==='th'?'แพ็กเกจ 3 วัน (ศ.-อา.)':'3 Day Package (Fri–Sun)', p.p3, 'per3')+
+      '</div>'+
+      '<ul class="cond-list"><li>'+c1+'</li><li>'+c2+'</li></ul>';
+  } else {
+    const intro = state.lang==='th'
+      ? 'Souped Up VIP Village พร้อมให้จับจองแล้ววันนี้'
+      : 'Souped Up VIP Village is open for booking today.';
+    box.innerHTML =
+      '<p class="price-intro">'+intro+'</p>'+
+      '<div class="price-cards">'+
+        card(state.lang==='th'?'แพ็กเกจ 1 วัน':'1 Day Package', p.p1, 'perday')+
+        card(state.lang==='th'?'แพ็กเกจ 3 วัน (ศ.-อา.)':'3 Day Package (Fri–Sun)', p.p3, 'per3')+
+      '</div>';
+  }
+}
+function card(name, price, unitKey){
+  return '<div class="price-card"><div class="pc-name">'+name+'</div>'+
+    '<div class="pc-price">'+fmt(price)+' <span style="font-size:16px;color:var(--txt-dim)">'+t('baht')+'</span></div>'+
+    '<div class="pc-unit">'+t(unitKey)+'</div></div>';
+}
+
+/* ================= Package block ================= */
+function renderPackages(){
+  const p = PRICES[state.tab];
+  const list = document.getElementById('pkgList');
+  const defs = [
+    { id:'p1', key:'pkg.p1', price:p.p1 },
+    { id:'p2', key:'pkg.p2', price:p.p2 },
+    { id:'p3', key:'pkg.p3', price:p.p3 }
+  ];
+  list.innerHTML = defs.map(d=>{
+    const maxN = PKG_DAYS[d.id];
+    const daysHtml = DAYS.map(day=>{
+      const on = state.days[d.id] && state.days[d.id][day.id];
+      return '<label class="day-chip'+(on?' on':'')+'" data-daychip="'+d.id+':'+day.id+'">'+
+        '<input type="checkbox" data-day="'+d.id+':'+day.id+'"'+(on?' checked':'')+'>'+
+        '<span>'+day[state.lang]+'</span></label>';
+    }).join('');
+    return '<label class="opt'+(state.pkg===d.id?' sel':'')+'" data-pkg="'+d.id+'">'+
+      '<div class="opt-top">'+
+        '<input type="radio" name="pkg" value="'+d.id+'"'+(state.pkg===d.id?' checked':'')+'>'+
+        '<span class="opt-name">'+t(d.key)+'</span>'+
+        '<span class="opt-price">'+fmt(d.price)+' <small>'+t('baht')+'</small></span>'+
+      '</div>'+
+      '<div class="day-pick">'+
+        '<div class="dp-label">'+t('pkg.days.label').replace('{n}', maxN)+'</div>'+
+        '<div class="day-grid">'+daysHtml+'</div>'+
+      '</div>'+
+    '</label>';
+  }).join('');
+
+  // wire radios
+  list.querySelectorAll('input[name="pkg"]').forEach(r=>{
+    r.addEventListener('change', ()=>{ state.pkg = r.value; renderPackages(); renderParking(); });
+  });
+  // wire day checkboxes with max-day enforcement
+  list.querySelectorAll('input[data-day]').forEach(c=>{
+    c.addEventListener('change', ()=>{
+      const [pid, did] = c.dataset.day.split(':');
+      state.days[pid] = state.days[pid] || {};
+      const maxN = PKG_DAYS[pid];
+      const chosen = Object.keys(state.days[pid]).filter(k=>state.days[pid][k]).length;
+      if(c.checked && chosen >= maxN){
+        c.checked = false;
+        toast(t('toast.days'));
+        return;
+      }
+      state.days[pid][did] = c.checked;
+      renderPackages();
+      renderParking();
+    });
+  });
+}
+
+/* ================= Parking block ================= */
+function selectedDays(){
+  if(!state.pkg || !state.days[state.pkg]) return [];
+  return DAYS.filter(d=>state.days[state.pkg][d.id]);
+}
+function renderParking(){
+  const box = document.getElementById('parkFields');
+  const days = selectedDays();
+  if(days.length===0){
+    box.innerHTML = '<div class="park-empty">'+t('park.empty')+'</div>';
+    return;
+  }
+  box.innerHTML = days.map(d=>{
+    const val = state.plates[d.id] ? ' value="'+state.plates[d.id].replace(/"/g,'&quot;')+'"' : '';
+    return '<div class="field">'+
+      '<label>'+t('park.plate')+' — <b style="color:var(--mint)">'+d[state.lang]+'</b></label>'+
+      '<input class="control" data-plate="'+d.id+'" placeholder="'+t('park.plate.ph')+'"'+val+'>'+
+    '</div>';
+  }).join('');
+  box.querySelectorAll('input[data-plate]').forEach(i=>{
+    i.addEventListener('input', ()=>{ state.plates[i.dataset.plate] = i.value; });
+  });
+}
+
+/* ================= Language ================= */
+function applyLang(){
+  document.documentElement.setAttribute('lang', state.lang);
+  document.documentElement.setAttribute('data-lang', state.lang);
+  document.querySelectorAll('[data-setlang]').forEach(b=>b.classList.toggle('active', b.dataset.setlang===state.lang));
+  document.querySelectorAll('[data-i18n]').forEach(n=>{ n.textContent = t(n.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(n=>{ n.placeholder = t(n.dataset.i18nPh); });
+  renderContent();
+  renderPackages();
+  renderParking();
+}
+
+/* ================= Tabs ================= */
+function setTab(tab){
+  state.tab = tab;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  renderContent();
+  renderPackages();
+}
+
+/* ================= Toast ================= */
+let toastTimer;
+function toast(msg, ok){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('ok', !!ok);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 3200);
+}
+
+/* ================= Contact channels ================= */
+document.querySelectorAll('input[data-chan]').forEach(c=>{
+  c.addEventListener('change', ()=>{
+    const inp = document.querySelector('input[data-chan-input="'+c.dataset.chan+'"]');
+    inp.style.display = c.checked ? 'block' : 'none';
+    if(!c.checked) inp.value='';
+    else inp.focus();
+  });
+});
+
+/* ================= Radio option highlight (shirt/consent) ================= */
+document.querySelectorAll('.radio-opt input').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    document.querySelectorAll('.radio-opt input[name="'+r.name+'"]').forEach(x=>{
+      x.closest('.radio-opt').classList.toggle('sel', x.checked);
+    });
+  });
+});
+
+/* ================= Tab / lang buttons ================= */
+document.querySelectorAll('[data-setlang]').forEach(b=>b.onclick=()=>{ state.lang=b.dataset.setlang; applyLang(); });
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+
+/* ================= Submit ================= */
+document.getElementById('regForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const form = e.target;
+  let ok = true;
+  ['name','surname','phone','email'].forEach(n=>{
+    const f = form.elements[n];
+    const wrap = f.closest('.field');
+    const bad = !f.value.trim();
+    wrap.classList.toggle('invalid', bad);
+    if(bad) ok=false;
+  });
+  if(!ok){ toast(t('toast.fill')); return; }
+  if(!state.pkg){ toast(t('toast.pkg')); return; }
+  const days = selectedDays();
+  if(days.length !== PKG_DAYS[state.pkg]){ toast(t('toast.days')); return; }
+  if(!form.querySelector('input[name="consent"]:checked')){ toast(t('toast.consent')); return; }
+
+  const chans = [];
+  document.querySelectorAll('input[data-chan]:checked').forEach(c=>{
+    const v = document.querySelector('input[data-chan-input="'+c.dataset.chan+'"]').value.trim();
+    chans.push(c.dataset.chan + (v?': '+v:''));
+  });
+  const shirt = (form.querySelector('input[name="shirt"]:checked')||{}).value || '-';
+
+  const payload = {
+    priceTab: state.tab,
+    name: form.name.value.trim(),
+    surname: form.surname.value.trim(),
+    phone: form.phone.value.trim(),
+    email: form.email.value.trim(),
+    contacts: chans,
+    package: state.pkg,
+    price: PRICES[state.tab][state.pkg],
+    days: days.map(d=>d.en),
+    tshirt: shirt,
+    plates: days.map(d=>({ day:d.en, plate: state.plates[d.id]||'' })),
+    foodAvoid: form.foodAvoid.value.trim(),
+    foodAllergy: form.foodAllergy.value.trim(),
+    consent: true
+  };
+  console.log('Registration payload:', payload);
+  toast(t('toast.ok'), true);
+});
+
+/* ================= Init ================= */
+applyLang();
+setTab('early');
+
+/* ================= Leaflet map (isolated so a CDN failure never breaks the form) ================= */
+function initMap(){
+  try{
+    if(typeof L === 'undefined' || !L.map){ throw new Error('Leaflet not loaded'); }
+    // Bangkok Drag Avenue — Khlong Luang, Pathum Thani (approx.; see Google Maps link for exact)
+    const lat = 14.0716, lng = 100.6790;
+    const map = L.map('leafMap', { scrollWheelZoom:false }).setView([lat, lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup('<b>Bangkok Drag Avenue</b><br>บางกอกแดร็ก อเวนิว<br><a href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener">Google Maps ↗</a>')
+      .openPopup();
+    setTimeout(()=>map.invalidateSize(), 200);
+  }catch(err){
+    const box = document.getElementById('leafMap');
+    if(box){
+      box.style.display='flex'; box.style.alignItems='center'; box.style.justifyContent='center';
+      box.style.textAlign='center'; box.style.color='var(--txt-dim)'; box.style.padding='20px';
+      box.innerHTML = '<a href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener" style="color:var(--mint);font-weight:700;text-decoration:none">📍 Bangkok Drag Avenue — '+(state.lang==='th'?'เปิดใน Google Maps':'Open in Google Maps')+' ↗</a>';
+    }
+  }
+}
+if(document.readyState==='complete') initMap();
+else window.addEventListener('load', initMap);
+</script>
+</body>
+</html>
