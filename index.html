@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
 :root{
   --bg:#0a0b0d;
@@ -147,9 +146,9 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .map-link{display:inline-flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line-2);color:var(--mint);text-decoration:none;padding:11px 16px;border-radius:9px;font-weight:700;font-size:14px;transition:.15s}
 .map-link:hover{border-color:var(--mint);background:var(--mint-soft)}
 .map-link svg{width:18px;height:18px;flex:0 0 auto}
-#leafMap{width:100%;min-height:280px;height:100%;border-radius:12px;border:1px solid var(--line-2);z-index:1}
-@media(max-width:720px){#leafMap{min-height:260px}}
-.leaflet-popup-content a{color:#0645ad;font-weight:700}
+.venue-map{display:block;border-radius:12px;overflow:hidden;border:1px solid var(--line-2);line-height:0;transition:.15s}
+.venue-map:hover{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+.venue-map img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* ---------- Package selection ---------- */
 .pkg-list{display:flex;flex-direction:column;gap:12px}
@@ -304,7 +303,9 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
             <span data-i18n="venue.open">เปิดใน Google Maps</span>
           </a>
         </div>
-        <div id="leafMap"></div>
+        <a class="venue-map" href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener" title="Bangkok Drag Avenue — Google Maps">
+          <img src="asset/map.png" alt="แผนที่ Bangkok Drag Avenue / Bangkok Drag Avenue map" width="1133" height="802" loading="lazy">
+        </a>
       </div>
     </div>
   </div>
@@ -456,7 +457,6 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ================= State ================= */
 const state = { lang:'th', tab:'early', pkg:null, days:{}, plates:{}, payMethod:'card', tax:false, result:null };
@@ -926,33 +926,6 @@ document.getElementById('regForm').addEventListener('submit', e=>{
 /* ================= Init ================= */
 applyLang();
 setTab('early');
-
-/* ================= Leaflet map (isolated so a CDN failure never breaks the form) ================= */
-function initMap(){
-  try{
-    if(typeof L === 'undefined' || !L.map){ throw new Error('Leaflet not loaded'); }
-    // Bangkok Drag Avenue — Khlong Luang, Pathum Thani (approx.; see Google Maps link for exact)
-    const lat = 14.0716, lng = 100.6790;
-    const map = L.map('leafMap', { scrollWheelZoom:false }).setView([lat, lng], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-    L.marker([lat, lng]).addTo(map)
-      .bindPopup('<b>Bangkok Drag Avenue</b><br>บางกอกแดร็ก อเวนิว<br><a href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener">Google Maps ↗</a>')
-      .openPopup();
-    setTimeout(()=>map.invalidateSize(), 200);
-  }catch(err){
-    const box = document.getElementById('leafMap');
-    if(box){
-      box.style.display='flex'; box.style.alignItems='center'; box.style.justifyContent='center';
-      box.style.textAlign='center'; box.style.color='var(--txt-dim)'; box.style.padding='20px';
-      box.innerHTML = '<a href="https://g.co/kgs/KV6ubAH" target="_blank" rel="noopener" style="color:var(--mint);font-weight:700;text-decoration:none">📍 Bangkok Drag Avenue — '+(state.lang==='th'?'เปิดใน Google Maps':'Open in Google Maps')+' ↗</a>';
-    }
-  }
-}
-if(document.readyState==='complete') initMap();
-else window.addEventListener('load', initMap);
 </script>
 </body>
 </html>
