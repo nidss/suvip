@@ -63,9 +63,9 @@ input,select,textarea{font-family:inherit}
   background:rgba(10,11,13,.82);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line);
 }
-.brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:2px}
-.brand b{font-size:19px;background:linear-gradient(120deg,var(--gold),#f2e2b6 50%,var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.brand small{display:block;font-size:10px;letter-spacing:3px;color:var(--txt-dim);font-weight:600}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer}
+.brand-logo{height:40px;width:auto;max-width:min(62vw,340px);object-fit:contain;display:block}
+@media(max-width:640px){.brand-logo{height:32px}}
 .lang-switch{display:flex;border:1px solid var(--line-2);border-radius:999px;overflow:hidden;flex:0 0 auto}
 .lang-switch button{
   background:transparent;color:var(--txt-dim);border:0;padding:7px 15px;
@@ -325,9 +325,9 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 <body>
 
 <div class="topbar">
-  <div class="brand">
-    <b>SOUPED UP · VIP VILLAGE</b>
-  </div>
+  <a class="brand" id="brandHome" href="#" aria-label="Souped Up VIP Village — home">
+    <img src="asset/logovip.png" alt="Souped Up VIP Village" class="brand-logo">
+  </a>
   <div class="lang-switch">
     <button data-setlang="th" class="active">TH</button>
     <button data-setlang="en">EN</button>
@@ -1054,6 +1054,7 @@ document.querySelectorAll('.radio-opt input').forEach(r=>{
 /* ================= Tab / lang buttons ================= */
 document.querySelectorAll('[data-setlang]').forEach(b=>b.onclick=()=>{ state.lang=b.dataset.setlang; applyLang(); });
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+el('brandHome').addEventListener('click', e=>{ e.preventDefault(); showView('reg'); window.scrollTo(0,0); });
 
 /* ================= Submit ================= */
 document.getElementById('regForm').addEventListener('submit', e=>{
