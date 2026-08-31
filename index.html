@@ -168,7 +168,16 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .day-chip:hover{border-color:var(--mint)}
 .day-chip.on{border-color:var(--mint);background:var(--mint-soft)}
 .day-chip input{width:16px;height:16px;accent-color:var(--mint)}
-.day-chip.disabled{opacity:.4;cursor:not-allowed}
+.day-chip.disabled{opacity:.5;cursor:not-allowed;background:rgba(225,6,0,.06);border-color:rgba(225,6,0,.3)}
+.day-chip.disabled:hover{border-color:rgba(225,6,0,.3)}
+.day-chip .d-full{font-style:normal;color:var(--red-2);font-weight:700;font-size:12px}
+.day-chip .d-near{font-style:normal;color:var(--amber);font-weight:700;font-size:12px}
+.dp-note{font-size:12.5px;color:var(--txt-dim);background:var(--mint-soft);border:1px solid rgba(111,255,232,.25);border-radius:8px;padding:9px 12px}
+.pkg-badge-full{display:inline-block;margin-left:8px;font-size:11px;font-weight:800;letter-spacing:.5px;color:#fff;background:var(--red);border-radius:6px;padding:2px 8px;vertical-align:middle}
+.opt.opt-disabled{opacity:.55;cursor:not-allowed}
+.opt.opt-disabled:hover{border-color:var(--line-2)}
+.opt.opt-disabled .day-pick{display:none}
+.opt.opt-disabled .opt-price{color:var(--txt-faint)}
 
 /* ---------- Radio group (tshirt / consent) ---------- */
 .radio-row{display:flex;flex-wrap:wrap;gap:12px}
@@ -251,22 +260,25 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .done-actions .btn svg{width:17px;height:17px}
 @media(max-width:420px){.done-actions .btn{flex:1 1 100%}}
 
-/* ---------- Printable receipt ---------- */
+/* ---------- Printable receipt (su-style card) ---------- */
 #printReceipt{display:none}
 @media print{
   @page{margin:14mm}
   html,body{background:#fff!important}
   body>*{display:none!important}
-  #printReceipt{display:block!important;color:#111;font-family:'Rajdhani','Noto Sans Thai',sans-serif}
-  #printReceipt .pr-head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:2px solid #111;padding-bottom:14px;margin-bottom:18px}
-  #printReceipt .pr-logo{height:56px;width:auto}
-  #printReceipt .pr-sub{font-size:12px;letter-spacing:2px;color:#555;font-weight:700;text-align:right}
-  #printReceipt .pr-title{font-size:20px;font-weight:700;margin:0 0 16px}
-  #printReceipt .pr-row{display:flex;justify-content:space-between;gap:20px;padding:11px 2px;border-bottom:1px solid #ddd;font-size:14px}
-  #printReceipt .pr-row .prl{color:#555}
+  #printReceipt{display:block!important;font-family:'Rajdhani','Noto Sans Thai',sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printReceipt .pr-card{max-width:460px;margin:0 auto;border:1px solid #cfd3da;border-radius:12px;overflow:hidden}
+  #printReceipt .pr-head{background:#0a0b0d;padding:16px 18px 14px;border-bottom:1px dashed #3a3f4a}
+  #printReceipt .pr-logo{height:34px;width:auto;display:block;margin-bottom:8px}
+  #printReceipt .pr-sub{font-size:11px;letter-spacing:2px;color:#c4cad4;font-weight:700}
+  #printReceipt .pr-title{font-size:16px;font-weight:700;color:#111;margin:0;padding:14px 18px 4px}
+  #printReceipt .pr-rows{padding:4px 18px 8px}
+  #printReceipt .pr-row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #e4e7ec;font-size:14px;color:#111}
+  #printReceipt .pr-row:last-child{border-bottom:0}
+  #printReceipt .pr-row .prl{color:#666}
   #printReceipt .pr-row .prv{font-weight:700;text-align:right}
-  #printReceipt .pr-row.total{border-bottom:0;border-top:2px solid #111;margin-top:6px;font-size:17px}
-  #printReceipt .pr-foot{margin-top:24px;font-size:11px;color:#777;letter-spacing:1px;text-align:center}
+  #printReceipt .pr-row.total .prv{color:#b8860b}
+  #printReceipt .pr-foot{padding:12px 18px 16px;font-size:10.5px;color:#888;letter-spacing:.5px;text-align:center;border-top:1px dashed #cfd3da}
 }
 
 /* ---------- Toast ---------- */
@@ -704,6 +716,17 @@ const DAYS = [
   { id:'d6', th:'6 ธันวาคม 2026', en:'6 December 2026' },
   { id:'d7', th:'7 ธันวาคม 2026', en:'7 December 2026' }
 ];
+// Per-day seat capacity + mock bookings (demo): d5 full, d6 nearly full, d7 available
+const DAY_CAP = 20;
+const DAY_BOOKED = { d5:20, d6:17, d7:6 };
+const NEAR_LEFT = 3; // "nearly full" when remaining seats <= this
+function dayRemain(id){ return Math.max(0, DAY_CAP - (DAY_BOOKED[id]||0)); }
+function dayStatus(id){ const r = dayRemain(id); return r<=0 ? 'full' : (r<=NEAR_LEFT ? 'near' : 'ok'); }
+function availableDayIds(){ return DAYS.filter(d=>dayStatus(d.id)!=='full').map(d=>d.id); }
+function pkgAvailable(pid){
+  if(pid==='p3') return true; // 3-day is the fixed full-event bundle
+  return availableDayIds().length >= PKG_DAYS[pid]; // 1-/2-day need enough open days
+}
 
 /* ================= i18n ================= */
 const L = {
@@ -721,6 +744,7 @@ const L = {
     'pkg.title':'ประเภทแพ็กเกจ VIP Village','pkg.sub':'VIP Village Package',
     'pkg.days.label':'จะมาวันไหน? (เลือกได้ {n} วัน)',
     'pkg.p1':'แพ็กเกจ 1 วัน (1 Day Package)','pkg.p2':'แพ็กเกจ 2 วัน (2 Day Package)','pkg.p3':'แพ็กเกจ 3 วัน (3 Day Package)',
+    'day.full':'(เต็ม)','day.near':'(ใกล้เต็ม)','pkg.full':'เต็ม','pkg.p3.note':'รวมทั้ง 3 วันของงาน (5–7 ธ.ค. 2026) · ระบุทะเบียนรถได้ด้านล่าง',
     'shirt.title':'ไซส์เสื้อ','shirt.label':'โปรดระบุไซส์เสื้อ (T-Shirt Size)',
     'shirt.l':'L - รอบอก 44" (Chest 44")','shirt.xl':'XL - รอบอก 48" (Chest 48")',
     'park.title':'สำรองพื้นที่จอดรถ','park.sub':'Reserve Parking',
@@ -793,6 +817,7 @@ const L = {
     'pkg.title':'VIP Village Package','pkg.sub':'ประเภทแพ็กเกจ',
     'pkg.days.label':'Which day(s) will you attend? (choose {n})',
     'pkg.p1':'1 Day Package (แพ็กเกจ 1 วัน)','pkg.p2':'2 Day Package (แพ็กเกจ 2 วัน)','pkg.p3':'3 Day Package (แพ็กเกจ 3 วัน)',
+    'day.full':'(Full)','day.near':'(Nearly full)','pkg.full':'FULL','pkg.p3.note':'Covers all 3 event days (5–7 Dec 2026) · enter license plates below',
     'shirt.title':'T-Shirt Size','shirt.label':'Please specify T-Shirt Size (โปรดระบุไซส์เสื้อ)',
     'shirt.l':'L - Chest 44" (รอบอก 44")','shirt.xl':'XL - Chest 48" (รอบอก 48")',
     'park.title':'Reserve Parking','park.sub':'สำรองพื้นที่จอดรถ',
@@ -904,39 +929,53 @@ function renderPackages(){
     { id:'p2', key:'pkg.p2', price:p.p2 },
     { id:'p3', key:'pkg.p3', price:p.p3 }
   ];
+  const dayTag = id => { const s=dayStatus(id); return s==='full' ? ' <em class="d-full">'+t('day.full')+'</em>' : (s==='near' ? ' <em class="d-near">'+t('day.near')+'</em>' : ''); };
   list.innerHTML = defs.map(d=>{
     const maxN = PKG_DAYS[d.id];
-    const inputType = maxN === 1 ? 'radio' : 'checkbox';
-    const daysHtml = DAYS.map(day=>{
-      const on = state.days[d.id] && state.days[d.id][day.id];
-      return '<label class="day-chip'+(on?' on':'')+'" data-daychip="'+d.id+':'+day.id+'">'+
-        '<input type="'+inputType+'" name="day-'+d.id+'" data-day="'+d.id+':'+day.id+'"'+(on?' checked':'')+'>'+
-        '<span>'+day[state.lang]+'</span></label>';
-    }).join('');
-    return '<label class="opt'+(state.pkg===d.id?' sel':'')+'" data-pkg="'+d.id+'">'+
+    const avail = pkgAvailable(d.id);
+    const badge = avail ? '' : '<span class="pkg-badge-full">'+t('pkg.full')+'</span>';
+    let dayPick = '';
+    if(d.id === 'p3'){
+      // 3-day = all event days; no day picker, license plates appear in the parking section
+      dayPick = '<div class="day-pick"><div class="dp-note">'+t('pkg.p3.note')+'</div></div>';
+    } else {
+      const inputType = maxN === 1 ? 'radio' : 'checkbox';
+      const daysHtml = DAYS.map(day=>{
+        const st = dayStatus(day.id);
+        const full = st==='full';
+        const on = state.days[d.id] && state.days[d.id][day.id];
+        return '<label class="day-chip'+(on?' on':'')+(full?' disabled':'')+'">'+
+          '<input type="'+inputType+'" name="day-'+d.id+'" data-day="'+d.id+':'+day.id+'"'+(on?' checked':'')+(full?' disabled':'')+'>'+
+          '<span>'+day[state.lang]+dayTag(day.id)+'</span></label>';
+      }).join('');
+      dayPick = '<div class="day-pick"><div class="dp-label">'+t('pkg.days.label').replace('{n}', maxN)+'</div>'+
+        '<div class="day-grid">'+daysHtml+'</div></div>';
+    }
+    return '<label class="opt'+(state.pkg===d.id?' sel':'')+(avail?'':' opt-disabled')+'" data-pkg="'+d.id+'">'+
       '<div class="opt-top">'+
-        '<input type="radio" name="pkg" value="'+d.id+'"'+(state.pkg===d.id?' checked':'')+'>'+
-        '<span class="opt-name">'+t(d.key)+'</span>'+
+        '<input type="radio" name="pkg" value="'+d.id+'"'+(state.pkg===d.id?' checked':'')+(avail?'':' disabled')+'>'+
+        '<span class="opt-name">'+t(d.key)+badge+'</span>'+
         '<span class="opt-price">'+fmt(d.price)+' <small>'+t('baht')+'</small></span>'+
       '</div>'+
-      '<div class="day-pick">'+
-        '<div class="dp-label">'+t('pkg.days.label').replace('{n}', maxN)+'</div>'+
-        '<div class="day-grid">'+daysHtml+'</div>'+
-      '</div>'+
+      dayPick+
     '</label>';
   }).join('');
 
   // wire radios
   list.querySelectorAll('input[name="pkg"]').forEach(r=>{
-    r.addEventListener('change', ()=>{ state.pkg = r.value; renderPackages(); renderParking(); });
+    r.addEventListener('change', ()=>{
+      state.pkg = r.value;
+      if(r.value === 'p3'){ state.days.p3 = { d5:true, d6:true, d7:true }; } // auto-select all 3 event days
+      renderPackages(); renderParking();
+    });
   });
-  // wire day checkboxes with max-day enforcement
+  // wire day checkboxes with max-day + capacity enforcement
   list.querySelectorAll('input[data-day]').forEach(c=>{
     c.addEventListener('change', ()=>{
       const [pid, did] = c.dataset.day.split(':');
+      if(dayStatus(did)==='full'){ c.checked = false; return; }
       const maxN = PKG_DAYS[pid];
       if(maxN === 1){
-        // radio: exactly one day
         state.days[pid] = {}; state.days[pid][did] = true;
       } else {
         state.days[pid] = state.days[pid] || {};
@@ -1106,20 +1145,24 @@ function renderDone(){
    '</div>';
   el('newReg').onclick=()=>resetAll();
 
-  // populate printable receipt
+  // populate printable receipt (su-style card)
   const prRow = (label,val,cls)=>'<div class="pr-row'+(cls?' '+cls:'')+'"><span class="prl">'+label+'</span><span class="prv">'+(esc(val)||'-')+'</span></div>';
   el('printReceipt').innerHTML =
-    '<div class="pr-head">'+
-      '<img class="pr-logo" src="asset/logo-main-b.png" alt="Souped Up VIP Village">'+
-      '<div class="pr-sub">'+t('dn.receipt')+'</div>'+
-    '</div>'+
-    '<h2 class="pr-title">'+t('dn.title')+'</h2>'+
-    prRow(t('dn.ref'), r.ref)+
-    prRow(t('dn.name'), r.name)+
-    prRow(t('dn.pkg'), r.pkg)+
-    prRow(t('dn.days'), r.days)+
-    prRow(t('dn.amount'), money(r.amount||0), 'total')+
-    '<div class="pr-foot">Souped Up VIP Village · Grand Prix International Public Company Limited'+(r.email?(' · '+esc(r.email)):'')+'</div>';
+    '<div class="pr-card">'+
+      '<div class="pr-head">'+
+        '<img class="pr-logo" src="asset/logovip.png" alt="Souped Up VIP Village">'+
+        '<div class="pr-sub">'+t('dn.receipt')+'</div>'+
+      '</div>'+
+      '<h2 class="pr-title">'+t('dn.title')+'</h2>'+
+      '<div class="pr-rows">'+
+        prRow(t('dn.ref'), r.ref)+
+        prRow(t('dn.name'), r.name)+
+        prRow(t('dn.pkg'), r.pkg)+
+        prRow(t('dn.days'), r.days)+
+        prRow(t('dn.amount'), money(r.amount||0), 'total')+
+      '</div>'+
+      '<div class="pr-foot">Souped Up VIP Village · Grand Prix International Public Company Limited'+(r.email?(' · '+esc(r.email)):'')+'</div>'+
+    '</div>';
 }
 function resetAll(){
   state.pkg=null; state.days={}; state.plates={}; state.payMethod='card'; state.tax=false; state.result=null;
@@ -1620,7 +1663,9 @@ function openMember(){
   el('memberBack').classList.add('open');
   document.body.style.overflow='hidden';
 }
-function closeMember(){ el('memberBack').classList.remove('open'); document.body.style.overflow=''; }
+function closeMember(){ el('memberBack').classList.remove('open'); document.body.style.overflow=''; markGateSeen(); }
+function markGateSeen(){ try{ sessionStorage.setItem('suvip_gate','1'); }catch(e){} }
+function gateSeen(){ try{ return sessionStorage.getItem('suvip_gate')==='1'; }catch(e){ return false; } }
 
 function memChanRow(k){
   const on = memberState.draft['chan_'+k+'_on'];
@@ -1777,6 +1822,8 @@ seedMockIfEmpty();
 applyLang();
 updateMemberBtn();
 setTab('early');
+// First visit: show the member login/register overlay first
+if(!isMemberAuthed() && !gateSeen()) openMember();
 </script>
 </body>
 </html>
