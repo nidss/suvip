@@ -1751,17 +1751,14 @@ function renderMember(){
     el('ml_forgot').onclick = ()=>toast(t('mem.toast.forgot'));
     el('memLoginForm').onsubmit = e=>{
       e.preventDefault();
-      const m = loadMember();
-      const idv = el('ml_id').value.trim(), pw = el('ml_pass').value;
-      if(!m){ memberState.authTab='register'; renderMember(); toast(t('mem.toast.needreg')); return; }
-      const idOk = idv && (idv===m.username || idv===m.email);
-      if(idOk && pw===m.password){
-        setMemberAuthed(true); updateMemberBtn();
-        toast(t('mem.toast.loginok'), true);
-        closeMember(); window.scrollTo(0,0);   // proceed to package selection
-      } else {
-        el('ml_pass').value=''; toast(t('login.err'));
+      // demo: accept any credentials; create a minimal account if none exists yet
+      const idv = el('ml_id').value.trim();
+      if(!loadMember()){
+        saveMember({ username: idv || 'member', phone:'', email:(idv.indexOf('@')>=0?idv:''), password:'', ts:Date.now() });
       }
+      setMemberAuthed(true); updateMemberBtn();
+      toast(t('mem.toast.loginok'), true);
+      closeMember(); window.scrollTo(0,0);   // proceed to package selection
     };
   }
 }
