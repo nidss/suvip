@@ -325,6 +325,17 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .upload .u-file{font-size:12px;color:var(--green);margin-top:6px;word-break:break-all}
 .upload.has-file{border-color:var(--green);border-style:solid}
 .thumb{margin-top:10px;max-height:120px;border-radius:8px;border:1px solid var(--line)}
+.hist-list{display:flex;flex-direction:column;gap:12px}
+.hist-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.hist-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--mint-grad)}
+.hist-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hist-pkg{font-weight:700;font-size:15.5px}
+.hist-amt{font-weight:800;font-size:17px;color:var(--gold);font-variant-numeric:tabular-nums}
+.hist-days{font-size:13px;color:var(--txt-dim);margin-top:4px}
+.hist-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hist-ref{font-family:'Rajdhani',monospace;letter-spacing:1px;font-size:12px;color:var(--amber)}
+.hist-date{font-size:12px;color:var(--txt-faint);margin-left:auto}
+.hist-empty{text-align:center;color:var(--txt-faint);font-size:14px;padding:30px 10px}
 .member-btn{background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);height:38px;padding:0 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:13px;flex:0 0 auto;transition:.15s}
 .member-btn:hover{border-color:var(--mint);color:#fff}
 .member-btn svg{width:16px;height:16px}
@@ -795,7 +806,10 @@ const L = {
     'mem.btn.register':'สมัครสมาชิก','mem.buy':'เลือกซื้อแพ็กเกจ',
     'mem.login.eyebrow':'ยินดีต้อนรับ','mem.login.id':'อีเมลหรือชื่อผู้ใช้','mem.login.pass':'รหัสผ่าน (Password)',
     'mem.login.remember':'จดจำฉันในระบบ','mem.login.forgot':'ลืมรหัสผ่าน?','mem.btn.login':'เข้าสู่ระบบ',
-    'mem.profile.eyebrow':'สมาชิก','mem.profile.title':'ประวัติสมาชิก','mem.profile.sub':'ข้อมูลบัญชีของคุณ',
+    'mem.profile.eyebrow':'สมาชิก','mem.profile.title':'บัญชีของฉัน','mem.profile.sub':'ข้อมูลบัญชีของคุณ',
+    'mem.profile.account':'บัญชีของฉัน','mem.profile.history':'ประวัติการซื้อ',
+    'mem.chpw':'เปลี่ยนรหัสผ่าน','mem.newpw':'รหัสผ่านใหม่ (New Password)','mem.chpw.info':'เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน',
+    'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ',
     'mem.edit':'แก้ไขข้อมูล','mem.logout':'ออกจากระบบ','mem.p.none':'—',
     'v.pwshort':'รหัสผ่านอย่างน้อย 6 ตัวอักษร','v.pwmatch':'รหัสผ่านไม่ตรงกัน',
     'mem.toast.forgot':'กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน','mem.toast.needreg':'ยังไม่มีบัญชี กรุณาสมัครสมาชิกก่อน',
@@ -866,7 +880,10 @@ const L = {
     'mem.btn.register':'Register','mem.buy':'Choose a package',
     'mem.login.eyebrow':'Welcome','mem.login.id':'Email or Username','mem.login.pass':'Password',
     'mem.login.remember':'Remember me','mem.login.forgot':'Forgot password?','mem.btn.login':'Sign In',
-    'mem.profile.eyebrow':'Member','mem.profile.title':'Member Profile','mem.profile.sub':'Your account information',
+    'mem.profile.eyebrow':'Member','mem.profile.title':'My Account','mem.profile.sub':'Your account information',
+    'mem.profile.account':'My Account','mem.profile.history':'Purchase History',
+    'mem.chpw':'Change password','mem.newpw':'New Password (รหัสผ่านใหม่)','mem.chpw.info':'Leave blank if you do not want to change your password.',
+    'mem.hist.empty':'No package purchases yet',
     'mem.edit':'Edit info','mem.logout':'Log out','mem.p.none':'—',
     'v.pwshort':'Password must be at least 6 characters','v.pwmatch':'Passwords do not match',
     'mem.toast.forgot':'Please contact the admin to reset your password','mem.toast.needreg':'No account yet — please register first',
@@ -1276,7 +1293,8 @@ document.getElementById('regForm').addEventListener('submit', e=>{
     plates: days.map(d=>({ day:d.id, plate: state.plates[d.id]||'' })),
     foodAvoid: payload.foodAvoid,
     foodAllergy: payload.foodAllergy,
-    consent: true
+    consent: true,
+    member: (loadMember() ? (loadMember().username || loadMember().email || '') : '')
   });
 
   showView('pay');
@@ -1641,7 +1659,7 @@ function saveMember(m){ try{ localStorage.setItem(MEMBER_KEY, JSON.stringify(m))
 function isMemberAuthed(){ try{ return sessionStorage.getItem(MEMBER_AUTH)==='1'; }catch(e){ return false; } }
 function setMemberAuthed(v){ try{ v ? sessionStorage.setItem(MEMBER_AUTH,'1') : sessionStorage.removeItem(MEMBER_AUTH); }catch(e){} }
 
-const memberState = { screen:'auth', authTab:'login', draft:{}, file:null };
+const memberState = { screen:'auth', authTab:'login', draft:{}, file:null, profileTab:'account' };
 
 function updateMemberBtn(){
   const m = loadMember();
@@ -1654,6 +1672,7 @@ function openMember(){
   if(isMemberAuthed() && m){ memberState.screen='profile'; }
   else { memberState.screen='auth'; memberState.authTab = m ? 'login' : 'register'; }
   memberState.draft = m ? Object.assign({}, m) : {};
+  memberState.profileTab = 'account';
   renderMember();
   el('memberBack').classList.add('open');
   document.body.style.overflow='hidden';
@@ -1667,21 +1686,75 @@ function renderMember(){
   const body = el('memberBody');
   if(s.screen==='profile'){
     const m = loadMember() || {};
-    const row = (label,val)=>'<div class="r-row"><span class="rl">'+label+'</span><span class="rv">'+(esc(val)||t('mem.p.none'))+'</span></div>';
+    const pt = memberState.profileTab || 'account';
+    const tabsHtml =
+      '<div class="tabs"><button data-ptab="account" class="'+(pt==='account'?'active':'')+'">'+t('mem.profile.account')+'</button>'+
+      '<button data-ptab="history" class="'+(pt==='history'?'active':'')+'">'+t('mem.profile.history')+'</button></div>';
+
+    let content;
+    if(pt==='account'){
+      content =
+        '<form id="memAcctForm" novalidate style="display:flex;flex-direction:column;gap:16px">'+
+          '<div class="field full"><label>'+t('mem.f.username')+'</label><input class="control" id="pa_user" value="'+esc(m.username||'')+'" disabled></div>'+
+          '<div class="grid">'+
+            '<div class="field"><label>'+t('mem.f.phone')+'</label><input class="control" id="pa_phone" value="'+esc(m.phone||'')+'" type="tel"></div>'+
+            '<div class="field"><label>'+t('mem.f.email')+'</label><input class="control" id="pa_email" value="'+esc(m.email||'')+'" type="email"></div>'+
+          '</div>'+
+          '<div class="field full"><label style="color:var(--lime)">'+t('mem.chpw')+'</label></div>'+
+          '<div class="grid">'+
+            '<div class="field"><label>'+t('mem.newpw')+'</label><input class="control" id="pa_pass" type="password" autocomplete="new-password" placeholder="'+t('mem.f.password.ph')+'"><div class="err-msg">'+t('v.pwshort')+'</div></div>'+
+            '<div class="field"><label>'+t('mem.f.confirm')+'</label><input class="control" id="pa_confirm" type="password" autocomplete="new-password" placeholder="'+t('mem.f.confirm.ph')+'"><div class="err-msg">'+t('v.pwmatch')+'</div></div>'+
+          '</div>'+
+          '<div class="info-box"><span class="ico">🔒</span><span>'+t('mem.chpw.info')+'</span></div>'+
+          '<div class="actions"><button type="button" class="btn btn-ghost" id="mLogout">'+t('mem.logout')+'</button><div class="spacer"></div><button type="submit" class="btn btn-primary" id="mSaveAcct">'+t('dash.save')+'</button></div>'+
+        '</form>'+
+        '<div style="text-align:center;margin-top:8px"><button type="button" class="link" id="mBuy">'+t('mem.buy')+' →</button></div>';
+    } else {
+      const mid = (m.username||m.email||'');
+      const mine = loadRegs().filter(r=>r.member && r.member===mid).sort((a,b)=>(b.ts||0)-(a.ts||0));
+      if(mine.length===0){
+        content = '<div class="hist-empty">'+t('mem.hist.empty')+'<div style="margin-top:14px"><button type="button" class="btn btn-primary" id="mBuy">'+t('mem.buy')+'</button></div></div>';
+      } else {
+        content = '<div class="hist-list">' + mine.map(r=>{
+          const days = (r.dayIds||[]).map(dayLabel).join(', ');
+          const dt = new Date(r.ts||Date.now());
+          const dstr = dt.toLocaleDateString(state.lang==='th'?'th-TH':'en-US',{year:'numeric',month:'short',day:'numeric'});
+          return '<div class="hist-card">'+
+              '<div class="hist-top"><span class="hist-pkg">'+t('pkg.'+r.pkg)+'</span><span class="hist-amt">'+money(r.amount||0)+'</span></div>'+
+              '<div class="hist-days">'+esc(days)+'</div>'+
+              '<div class="hist-meta"><span class="badge-tab '+(r.priceTab==='early'?'early':'')+'">'+t('tab.'+r.priceTab)+'</span>'+
+                '<span class="hist-ref">'+esc(r.ref||r.id||'')+'</span><span class="hist-date">'+esc(dstr)+'</span></div>'+
+            '</div>';
+        }).join('') + '</div>';
+      }
+    }
+
     body.innerHTML =
       '<p class="eyebrow">'+t('mem.profile.eyebrow')+'</p>'+
       '<h1 class="page-title">'+t('mem.profile.title')+'</h1>'+
-      '<p class="page-sub">'+t('mem.profile.sub')+'</p>'+
-      '<div class="receipt">'+
-        '<div class="r-head">SOUPED UP · VIP VILLAGE · MEMBER</div>'+
-        row(t('mem.f.username'), m.username)+
-        row(t('mem.f.phone'), m.phone)+
-        row(t('mem.f.email'), m.email)+
-      '</div>'+
-      '<div class="actions"><button type="button" class="btn btn-ghost" id="mLogout">'+t('mem.logout')+'</button><div class="spacer"></div><button type="button" class="btn btn-primary" id="mBuy">'+t('mem.buy')+'</button></div>';
+      '<p class="page-sub">'+((m.username||m.email||'')?esc(m.username||m.email):t('mem.profile.sub'))+'</p>'+
+      tabsHtml + content;
+
     el('memberClose').hidden = false;
-    el('mLogout').onclick = ()=>{ setMemberAuthed(false); memberState.screen='auth'; memberState.authTab='login'; renderMember(); updateMemberBtn(); };
-    el('mBuy').onclick = ()=>{ closeMember(); window.scrollTo(0,0); };
+    body.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{ memberState.profileTab=b.dataset.ptab; renderMember(); });
+    const buy = el('mBuy'); if(buy) buy.onclick = ()=>{ closeMember(); window.scrollTo(0,0); };
+    const lo = el('mLogout'); if(lo) lo.onclick = ()=>{ setMemberAuthed(false); memberState.screen='auth'; memberState.authTab='login'; memberState.profileTab='account'; renderMember(); updateMemberBtn(); };
+    const acctForm = el('memAcctForm');
+    if(acctForm) acctForm.onsubmit = e=>{
+      e.preventDefault();
+      const pw = el('pa_pass').value, cf = el('pa_confirm').value;
+      if(pw || cf){
+        if(pw.length < 6){ const fl=el('pa_pass').closest('.field'); fl.classList.add('invalid'); fl.querySelector('.err-msg').textContent=t('v.pwshort'); toast(t('v.pwshort')); return; }
+        if(pw !== cf){ const fl=el('pa_confirm').closest('.field'); fl.classList.add('invalid'); fl.querySelector('.err-msg').textContent=t('v.pwmatch'); toast(t('v.pwmatch')); return; }
+      }
+      const mm = loadMember() || {};
+      mm.phone = el('pa_phone').value.trim();
+      mm.email = el('pa_email').value.trim();
+      if(pw) mm.password = pw;
+      saveMember(mm); updateMemberBtn();
+      toast(t('dash.saved'), true);
+      renderMember();
+    };
     return;
   }
 
