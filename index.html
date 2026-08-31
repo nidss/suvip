@@ -1629,7 +1629,7 @@ document.addEventListener('keydown', e=>{
     if(el('dmBack').classList.contains('open')) closeEdit();
     else if(el('loginBack').classList.contains('open')) closeLogin();
     else if(el('dashBack').classList.contains('open')) closeDashboard();
-    else if(el('memberBack').classList.contains('open')) closeMember();
+    else if(el('memberBack').classList.contains('open') && isMemberAuthed()) closeMember();
   }
 });
 
@@ -1679,6 +1679,7 @@ function renderMember(){
         row(t('mem.f.email'), m.email)+
       '</div>'+
       '<div class="actions"><button type="button" class="btn btn-ghost" id="mLogout">'+t('mem.logout')+'</button><div class="spacer"></div><button type="button" class="btn btn-primary" id="mBuy">'+t('mem.buy')+'</button></div>';
+    el('memberClose').hidden = false;
     el('mLogout').onclick = ()=>{ setMemberAuthed(false); memberState.screen='auth'; memberState.authTab='login'; renderMember(); updateMemberBtn(); };
     el('mBuy').onclick = ()=>{ closeMember(); window.scrollTo(0,0); };
     return;
@@ -1699,10 +1700,14 @@ function renderMember(){
       '<p class="page-sub">'+t('mem.reg.sub')+'</p>'+
       '<form id="memRegForm" novalidate style="display:flex;flex-direction:column;gap:16px">'+
         '<div class="field full"><label>'+t('mem.f.username')+'<span class="req">*</span></label><input class="control" id="m_user" value="'+esc(d.username||'')+'" autocomplete="username" placeholder="'+t('mem.f.username.ph')+'"><div class="err-msg">'+t('v.required')+'</div></div>'+
-        '<div class="field full"><label>'+t('mem.f.phone')+'<span class="req">*</span></label><input class="control" id="m_phone" type="tel" value="'+esc(d.phone||'')+'" placeholder="08X-XXX-XXXX"><div class="err-msg">'+t('v.required')+'</div></div>'+
-        '<div class="field full"><label>'+t('mem.f.email')+'<span class="req">*</span></label><input class="control" id="m_email" type="email" value="'+esc(d.email||'')+'" placeholder="you@email.com"><div class="err-msg">'+t('v.required')+'</div></div>'+
-        '<div class="field full"><label>'+t('mem.f.password')+'<span class="req">*</span></label><input class="control" id="m_pass" type="password" autocomplete="new-password" placeholder="'+t('mem.f.password.ph')+'"><div class="err-msg">'+t('v.pwshort')+'</div></div>'+
-        '<div class="field full"><label>'+t('mem.f.confirm')+'<span class="req">*</span></label><input class="control" id="m_confirm" type="password" autocomplete="new-password" placeholder="'+t('mem.f.confirm.ph')+'"><div class="err-msg">'+t('v.pwmatch')+'</div></div>'+
+        '<div class="grid">'+
+          '<div class="field"><label>'+t('mem.f.phone')+'<span class="req">*</span></label><input class="control" id="m_phone" type="tel" value="'+esc(d.phone||'')+'" placeholder="08X-XXX-XXXX"><div class="err-msg">'+t('v.required')+'</div></div>'+
+          '<div class="field"><label>'+t('mem.f.email')+'<span class="req">*</span></label><input class="control" id="m_email" type="email" value="'+esc(d.email||'')+'" placeholder="you@email.com"><div class="err-msg">'+t('v.required')+'</div></div>'+
+        '</div>'+
+        '<div class="grid">'+
+          '<div class="field"><label>'+t('mem.f.password')+'<span class="req">*</span></label><input class="control" id="m_pass" type="password" autocomplete="new-password" placeholder="'+t('mem.f.password.ph')+'"><div class="err-msg">'+t('v.pwshort')+'</div></div>'+
+          '<div class="field"><label>'+t('mem.f.confirm')+'<span class="req">*</span></label><input class="control" id="m_confirm" type="password" autocomplete="new-password" placeholder="'+t('mem.f.confirm.ph')+'"><div class="err-msg">'+t('v.pwmatch')+'</div></div>'+
+        '</div>'+
         '<div class="actions"><div class="spacer"></div><button type="submit" class="btn btn-primary btn-lg btn-block">'+t('mem.btn.register')+'</button></div>'+
       '</form>';
   } else {
@@ -1719,6 +1724,9 @@ function renderMember(){
       '</form>';
   }
   body.innerHTML = tabs + inner;
+
+  // Auth is a mandatory first page (no close) until signed in; profile is dismissable.
+  el('memberClose').hidden = (s.screen !== 'profile');
 
   body.querySelectorAll('[data-mtab]').forEach(b=>b.onclick=()=>{ memberState.authTab=b.dataset.mtab; renderMember(); });
 
@@ -1759,7 +1767,7 @@ function renderMember(){
 }
 el('memberBtn').onclick = openMember;
 el('memberClose').onclick = closeMember;
-el('memberBack').addEventListener('click', e=>{ if(e.target===el('memberBack')) closeMember(); });
+el('memberBack').addEventListener('click', e=>{ if(e.target===el('memberBack') && isMemberAuthed()) closeMember(); });
 
 /* ================= Init ================= */
 seedMockIfEmpty();
