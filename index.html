@@ -246,6 +246,28 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .receipt .r-row .rl{color:var(--txt-dim)}
 .receipt .r-row .rv{font-weight:700}
 .ref-num{font-family:'Rajdhani',monospace;letter-spacing:2px;color:var(--amber)}
+.done-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.done-actions .btn{min-width:180px;flex:0 1 220px}
+.done-actions .btn svg{width:17px;height:17px}
+@media(max-width:420px){.done-actions .btn{flex:1 1 100%}}
+
+/* ---------- Printable receipt ---------- */
+#printReceipt{display:none}
+@media print{
+  @page{margin:14mm}
+  html,body{background:#fff!important}
+  body>*{display:none!important}
+  #printReceipt{display:block!important;color:#111;font-family:'Rajdhani','Noto Sans Thai',sans-serif}
+  #printReceipt .pr-head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:2px solid #111;padding-bottom:14px;margin-bottom:18px}
+  #printReceipt .pr-logo{height:56px;width:auto}
+  #printReceipt .pr-sub{font-size:12px;letter-spacing:2px;color:#555;font-weight:700;text-align:right}
+  #printReceipt .pr-title{font-size:20px;font-weight:700;margin:0 0 16px}
+  #printReceipt .pr-row{display:flex;justify-content:space-between;gap:20px;padding:11px 2px;border-bottom:1px solid #ddd;font-size:14px}
+  #printReceipt .pr-row .prl{color:#555}
+  #printReceipt .pr-row .prv{font-weight:700;text-align:right}
+  #printReceipt .pr-row.total{border-bottom:0;border-top:2px solid #111;margin-top:6px;font-size:17px}
+  #printReceipt .pr-foot{margin-top:24px;font-size:11px;color:#777;letter-spacing:1px;text-align:center}
+}
 
 /* ---------- Toast ---------- */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);padding:13px 22px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:300;font-size:14px;pointer-events:none;max-width:90vw}
@@ -571,6 +593,9 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <div class="toast" id="toast"></div>
 
+<!-- printable receipt (visible only when printing) -->
+<div id="printReceipt"></div>
+
 <!-- ============ ADMIN LOGIN (Ctrl+Shift+Z) ============ -->
 <div class="login-back" id="loginBack">
   <div class="login-card card">
@@ -728,7 +753,7 @@ const L = {
     'py.confirm':'ยืนยันชำระเงิน','btn.back':'ย้อนกลับ',
     'dn.title':'ชำระเงินสำเร็จ!','dn.sub':'เราได้ส่งอีเมลยืนยันการลงทะเบียนให้คุณแล้ว','dn.email':'ส่งไปที่',
     'dn.ref':'หมายเลขอ้างอิง','dn.name':'ชื่อผู้สมัคร','dn.pkg':'แพ็กเกจ','dn.days':'วันที่เข้าร่วม','dn.amount':'ยอดที่ชำระ',
-    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ',
+    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ (PDF)','dn.receipt':'ใบเสร็จรับเงิน · OFFICIAL RECEIPT',
     'dash.title':'แดชบอร์ดผู้สมัคร<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
     'dash.count':'จำนวนผู้สมัคร','dash.total':'จำนวนเงินรวม','dash.hint':'กด Ctrl+Shift+Z เพื่อปิด',
     'dash.rows':'รายการ','dash.empty':'ยังไม่มีข้อมูลผู้สมัคร',
@@ -800,7 +825,7 @@ const L = {
     'py.confirm':'Confirm Payment','btn.back':'Back',
     'dn.title':'Payment Successful!','dn.sub':'A confirmation email has been sent to you.','dn.email':'Sent to',
     'dn.ref':'Reference No.','dn.name':'Applicant','dn.pkg':'Package','dn.days':'Attendance day(s)','dn.amount':'Amount Paid',
-    'dn.new':'Register another entry','dn.print':'Print receipt',
+    'dn.new':'Register another entry','dn.print':'Print receipt (PDF)','dn.receipt':'OFFICIAL RECEIPT · ใบเสร็จรับเงิน',
     'dash.title':'Applicants Dashboard<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
     'dash.count':'Applicants','dash.total':'Total Amount','dash.hint':'Press Ctrl+Shift+Z to close',
     'dash.rows':'record(s)','dash.empty':'No applicants yet',
@@ -1074,12 +1099,27 @@ function renderDone(){
        '<div class="r-row"><span class="rl">'+t('dn.days')+'</span><span class="rv">'+esc(r.days||'-')+'</span></div>'+
        '<div class="r-row"><span class="rl">'+t('dn.amount')+'</span><span class="rv" style="color:var(--amber)">'+money(r.amount||0)+'</span></div>'+
      '</div>'+
-     '<div class="actions" style="justify-content:center">'+
-       '<button type="button" class="btn btn-ghost" onclick="window.print()">'+t('dn.print')+'</button>'+
+     '<div class="done-actions">'+
+       '<button type="button" class="btn btn-ghost" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> '+t('dn.print')+'</button>'+
        '<button type="button" class="btn btn-primary" id="newReg">'+t('dn.new')+'</button>'+
      '</div>'+
    '</div>';
   el('newReg').onclick=()=>resetAll();
+
+  // populate printable receipt
+  const prRow = (label,val,cls)=>'<div class="pr-row'+(cls?' '+cls:'')+'"><span class="prl">'+label+'</span><span class="prv">'+(esc(val)||'-')+'</span></div>';
+  el('printReceipt').innerHTML =
+    '<div class="pr-head">'+
+      '<img class="pr-logo" src="asset/logo-main-b.png" alt="Souped Up VIP Village">'+
+      '<div class="pr-sub">'+t('dn.receipt')+'</div>'+
+    '</div>'+
+    '<h2 class="pr-title">'+t('dn.title')+'</h2>'+
+    prRow(t('dn.ref'), r.ref)+
+    prRow(t('dn.name'), r.name)+
+    prRow(t('dn.pkg'), r.pkg)+
+    prRow(t('dn.days'), r.days)+
+    prRow(t('dn.amount'), money(r.amount||0), 'total')+
+    '<div class="pr-foot">Souped Up VIP Village · Grand Prix International Public Company Limited'+(r.email?(' · '+esc(r.email)):'')+'</div>';
 }
 function resetAll(){
   state.pkg=null; state.days={}; state.plates={}; state.payMethod='card'; state.tax=false; state.result=null;
