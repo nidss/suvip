@@ -277,7 +277,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
   #printReceipt .pr-row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #e4e7ec;font-size:14px;color:#111}
   #printReceipt .pr-row:last-child{border-bottom:0}
   #printReceipt .pr-row .prl{color:#666}
-  #printReceipt .pr-row .prv{font-weight:700;text-align:right}
+  #printReceipt .pr-row .prv{font-weight:700;text-align:right;white-space:pre-line}
   #printReceipt .pr-row.total .prv{color:#b8860b}
   #printReceipt .pr-foot{padding:12px 18px 16px;font-size:10.5px;color:#888;letter-spacing:.5px;text-align:center;border-top:1px dashed #cfd3da}
 }
@@ -347,9 +347,13 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .hist-plates{display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:9px 11px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--txt-dim);line-height:1.5}
 .hist-plates svg{width:17px;height:17px;color:var(--mint);flex:0 0 auto;margin-top:1px}
 .hist-plates strong{color:var(--txt);font-weight:700}
+.hist-plate-lines{display:flex;flex-direction:column;gap:3px;margin-top:3px}
 .hist-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
 .hist-ref{font-family:'Rajdhani',monospace;letter-spacing:1px;font-size:12px;color:var(--amber)}
 .hist-date{font-size:12px;color:var(--txt-faint);margin-left:auto}
+.hist-receipt-btn{width:100%;margin-top:12px;background:transparent;border:1px solid var(--line-2);color:var(--mint);border-radius:8px;padding:9px 12px;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;transition:.15s}
+.hist-receipt-btn:hover{border-color:var(--mint);background:var(--mint-soft)}
+.hist-receipt-btn svg{width:16px;height:16px}
 .hist-empty{text-align:center;color:var(--txt-faint);font-size:14px;padding:30px 10px}
 .member-btn{background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);height:38px;padding:0 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:13px;flex:0 0 auto;transition:.15s}
 .member-btn:hover{border-color:var(--mint);color:#fff}
@@ -835,7 +839,7 @@ const L = {
     'mem.profile.eyebrow':'สมาชิก','mem.profile.title':'บัญชีของฉัน','mem.profile.sub':'ข้อมูลบัญชีของคุณ',
     'mem.profile.account':'บัญชีของฉัน','mem.profile.history':'ประวัติการซื้อ',
     'mem.chpw':'เปลี่ยนรหัสผ่าน','mem.newpw':'รหัสผ่านใหม่ (New Password)','mem.chpw.info':'กรอกรหัสผ่านใหม่และยืนยันรหัสผ่านให้ตรงกัน','mem.username.locked':'ชื่อผู้ใช้ไม่สามารถแก้ไขได้',
-    'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ','mem.hist.plate':'ทะเบียนรถ',
+    'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ','mem.hist.plate':'ทะเบียนรถ','mem.hist.receipt':'ดาวน์โหลดใบเสร็จ (PDF)',
     'mem.edit':'แก้ไขข้อมูล','mem.logout':'ออกจากระบบ','mem.p.none':'—',
     'v.pwshort':'รหัสผ่านอย่างน้อย 6 ตัวอักษร','v.pwmatch':'รหัสผ่านไม่ตรงกัน',
     'mem.toast.forgot':'กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน','mem.toast.needreg':'ยังไม่มีบัญชี กรุณาสมัครสมาชิกก่อน',
@@ -909,7 +913,7 @@ const L = {
     'mem.profile.eyebrow':'Member','mem.profile.title':'My Account','mem.profile.sub':'Your account information',
     'mem.profile.account':'My Account','mem.profile.history':'Purchase History',
     'mem.chpw':'Change password','mem.newpw':'New Password (รหัสผ่านใหม่)','mem.chpw.info':'Enter and confirm your new password.','mem.username.locked':'Username cannot be changed.',
-    'mem.hist.empty':'No package purchases yet','mem.hist.plate':'License plate',
+    'mem.hist.empty':'No package purchases yet','mem.hist.plate':'License plate','mem.hist.receipt':'Download receipt (PDF)',
     'mem.edit':'Edit info','mem.logout':'Log out','mem.p.none':'—',
     'v.pwshort':'Password must be at least 6 characters','v.pwmatch':'Passwords do not match',
     'mem.toast.forgot':'Please contact the admin to reset your password','mem.toast.needreg':'No account yet — please register first',
@@ -1184,7 +1188,9 @@ function renderDone(){
    '</div>';
   el('newReg').onclick=()=>resetAll();
 
-  // populate printable receipt (su-style card)
+  populatePrintableReceipt(r, t('dn.title'));
+}
+function populatePrintableReceipt(r, title){
   const prRow = (label,val,cls)=>'<div class="pr-row'+(cls?' '+cls:'')+'"><span class="prl">'+label+'</span><span class="prv">'+(esc(val)||'-')+'</span></div>';
   el('printReceipt').innerHTML =
     '<div class="pr-card">'+
@@ -1192,16 +1198,32 @@ function renderDone(){
         '<img class="pr-logo" src="asset/logovip.png" alt="Souped Up VIP Village">'+
         '<div class="pr-sub">'+t('dn.receipt')+'</div>'+
       '</div>'+
-      '<h2 class="pr-title">'+t('dn.title')+'</h2>'+
+      '<h2 class="pr-title">'+esc(title||t('dn.receipt'))+'</h2>'+
       '<div class="pr-rows">'+
         prRow(t('dn.ref'), r.ref)+
         prRow(t('dn.name'), r.name)+
         prRow(t('dn.pkg'), r.pkg)+
         prRow(t('dn.days'), r.days)+
+        (r.plates?prRow(t('mem.hist.plate'), r.plates):'')+
         prRow(t('dn.amount'), money(r.amount||0), 'total')+
       '</div>'+
       '<div class="pr-foot">Souped Up VIP Village · Grand Prix International Public Company Limited'+(r.email?(' · '+esc(r.email)):'')+'</div>'+
     '</div>';
+}
+function printHistoryReceipt(id){
+  const order = loadRegs().find(r=>r.id===id);
+  if(!order) return;
+  const plates = (order.plates||[]).filter(p=>p.plate).map(p=>dayLabel(p.day)+': '+p.plate).join('\n');
+  populatePrintableReceipt({
+    ref:order.ref||order.id||'',
+    name:((order.name||'')+' '+(order.surname||'')).trim()||'-',
+    email:order.email||'',
+    pkg:t('pkg.'+order.pkg),
+    days:(order.dayIds||[]).map(dayLabel).join(', '),
+    plates,
+    amount:order.amount||0
+  }, t('dn.receipt'));
+  setTimeout(()=>window.print(),60);
 }
 function resetAll(){
   state.pkg=null; state.days={}; state.plates={}; state.payMethod='card'; state.tax=false; state.result=null;
@@ -1782,15 +1804,16 @@ function renderMember(){
       } else {
         content = '<div class="hist-list">' + mine.map(r=>{
           const days = (r.dayIds||[]).map(dayLabel).join(', ');
-          const plates = (r.plates||[]).filter(p=>p.plate).map(p=>dayLabel(p.day)+': '+esc(p.plate)).join(' · ');
+          const plateLines = (r.plates||[]).filter(p=>p.plate).map(p=>'<span>'+esc(dayLabel(p.day))+': <b>'+esc(p.plate)+'</b></span>').join('');
           const dt = new Date(r.ts||Date.now());
           const dstr = dt.toLocaleDateString(state.lang==='th'?'th-TH':'en-US',{year:'numeric',month:'short',day:'numeric'});
           return '<div class="hist-card">'+
               '<div class="hist-top"><span class="hist-pkg">'+t('pkg.'+r.pkg)+'</span><span class="hist-amt">'+money(r.amount||0)+'</span></div>'+
               '<div class="hist-days">'+esc(days)+'</div>'+
-              (plates?'<div class="hist-plates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M5 12h14"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg><span><strong>'+t('mem.hist.plate')+'</strong> · '+plates+'</span></div>':'')+
+              (plateLines?'<div class="hist-plates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M5 12h14"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg><span><strong>'+t('mem.hist.plate')+'</strong><span class="hist-plate-lines">'+plateLines+'</span></span></div>':'')+
               '<div class="hist-meta"><span class="badge-tab '+(r.priceTab==='early'?'early':'')+'">'+t('tab.'+r.priceTab)+'</span>'+
                 '<span class="hist-ref">'+esc(r.ref||r.id||'')+'</span><span class="hist-date">'+esc(dstr)+'</span></div>'+
+              '<button type="button" class="hist-receipt-btn" data-history-receipt="'+esc(r.id)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>'+t('mem.hist.receipt')+'</button>'+
             '</div>';
         }).join('') + '</div>';
       }
@@ -1804,6 +1827,7 @@ function renderMember(){
 
     el('memberClose').hidden = false;
     body.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{ memberState.profileTab=b.dataset.ptab; renderMember(); });
+    body.querySelectorAll('[data-history-receipt]').forEach(b=>b.onclick=()=>printHistoryReceipt(b.dataset.historyReceipt));
     const buy = el('mBuy'); if(buy) buy.onclick = ()=>{ closeMember(); window.scrollTo(0,0); };
     const lo = el('mLogout'); if(lo) lo.onclick = ()=>{ setMemberAuthed(false); memberState.screen='auth'; memberState.authTab='login'; memberState.profileTab='account'; renderMember(); updateMemberBtn(); };
     const pwToggle = el('mTogglePassword');
