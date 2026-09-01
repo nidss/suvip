@@ -110,6 +110,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 }
 .control::placeholder{color:#5a616e}
 .control:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+.control:disabled{background:#101217;border-color:#242933;color:#727b89;cursor:not-allowed;opacity:.78;box-shadow:none}
 .field.invalid .control{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,6,0,.15)}
 .err-msg{color:var(--red-2);font-size:11px;display:none}
 .field.invalid .err-msg{display:block}
@@ -319,6 +320,14 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .row-between{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:4px 0 20px}
 .link{color:var(--mint);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer;background:none;border:0;padding:0}
 .link:hover{text-decoration:underline}
+.password-toggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);border-radius:10px;padding:13px 15px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;text-align:left}
+.password-toggle:hover{border-color:var(--mint);background:var(--mint-soft)}
+.password-toggle .lock-ico{width:18px;height:18px;color:var(--mint);flex:0 0 auto}
+.password-toggle .toggle-label{flex:1}
+.password-toggle .chevron{width:18px;height:18px;color:var(--txt-dim);transition:transform .18s}
+.password-toggle.open .chevron{transform:rotate(180deg)}
+.password-fields{display:flex;flex-direction:column;gap:14px;padding-top:2px}
+.password-fields[hidden]{display:none}
 .upload{border:1.5px dashed var(--line-2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:.15s;background:var(--bg);display:block}
 .upload:hover{border-color:var(--mint);background:var(--mint-soft)}
 .upload input{display:none}
@@ -822,7 +831,7 @@ const L = {
     'mem.login.remember':'จดจำฉันในระบบ','mem.login.forgot':'ลืมรหัสผ่าน?','mem.btn.login':'เข้าสู่ระบบ',
     'mem.profile.eyebrow':'สมาชิก','mem.profile.title':'บัญชีของฉัน','mem.profile.sub':'ข้อมูลบัญชีของคุณ',
     'mem.profile.account':'บัญชีของฉัน','mem.profile.history':'ประวัติการซื้อ',
-    'mem.chpw':'เปลี่ยนรหัสผ่าน','mem.newpw':'รหัสผ่านใหม่ (New Password)','mem.chpw.info':'เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน',
+    'mem.chpw':'เปลี่ยนรหัสผ่าน','mem.newpw':'รหัสผ่านใหม่ (New Password)','mem.chpw.info':'กรอกรหัสผ่านใหม่และยืนยันรหัสผ่านให้ตรงกัน','mem.username.locked':'ชื่อผู้ใช้ไม่สามารถแก้ไขได้',
     'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ',
     'mem.edit':'แก้ไขข้อมูล','mem.logout':'ออกจากระบบ','mem.p.none':'—',
     'v.pwshort':'รหัสผ่านอย่างน้อย 6 ตัวอักษร','v.pwmatch':'รหัสผ่านไม่ตรงกัน',
@@ -896,7 +905,7 @@ const L = {
     'mem.login.remember':'Remember me','mem.login.forgot':'Forgot password?','mem.btn.login':'Sign In',
     'mem.profile.eyebrow':'Member','mem.profile.title':'My Account','mem.profile.sub':'Your account information',
     'mem.profile.account':'My Account','mem.profile.history':'Purchase History',
-    'mem.chpw':'Change password','mem.newpw':'New Password (รหัสผ่านใหม่)','mem.chpw.info':'Leave blank if you do not want to change your password.',
+    'mem.chpw':'Change password','mem.newpw':'New Password (รหัสผ่านใหม่)','mem.chpw.info':'Enter and confirm your new password.','mem.username.locked':'Username cannot be changed.',
     'mem.hist.empty':'No package purchases yet',
     'mem.edit':'Edit info','mem.logout':'Log out','mem.p.none':'—',
     'v.pwshort':'Password must be at least 6 characters','v.pwmatch':'Passwords do not match',
@@ -1710,17 +1719,23 @@ function renderMember(){
     if(pt==='account'){
       content =
         '<form id="memAcctForm" novalidate style="display:flex;flex-direction:column;gap:16px">'+
-          '<div class="field full"><label>'+t('mem.f.username')+'</label><input class="control" id="pa_user" value="'+esc(m.username||'')+'" disabled></div>'+
+          '<div class="field full"><label>'+t('mem.f.username')+' 🔒</label><input class="control" id="pa_user" value="'+esc(m.username||'')+'" disabled aria-disabled="true"><div class="hint">'+t('mem.username.locked')+'</div></div>'+
           '<div class="grid">'+
             '<div class="field"><label>'+t('mem.f.phone')+'</label><input class="control" id="pa_phone" value="'+esc(m.phone||'')+'" type="tel"></div>'+
             '<div class="field"><label>'+t('mem.f.email')+'</label><input class="control" id="pa_email" value="'+esc(m.email||'')+'" type="email"></div>'+
           '</div>'+
-          '<div class="field full"><label style="color:var(--lime)">'+t('mem.chpw')+'</label></div>'+
-          '<div class="grid">'+
-            '<div class="field"><label>'+t('mem.newpw')+'</label><input class="control" id="pa_pass" type="password" autocomplete="new-password" placeholder="'+t('mem.f.password.ph')+'"><div class="err-msg">'+t('v.pwshort')+'</div></div>'+
-            '<div class="field"><label>'+t('mem.f.confirm')+'</label><input class="control" id="pa_confirm" type="password" autocomplete="new-password" placeholder="'+t('mem.f.confirm.ph')+'"><div class="err-msg">'+t('v.pwmatch')+'</div></div>'+
+          '<button type="button" class="password-toggle" id="mTogglePassword" aria-expanded="false" aria-controls="passwordFields">'+
+            '<svg class="lock-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'+
+            '<span class="toggle-label">'+t('mem.chpw')+'</span>'+
+            '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>'+
+          '</button>'+
+          '<div class="password-fields" id="passwordFields" hidden>'+
+            '<div class="grid">'+
+              '<div class="field"><label>'+t('mem.newpw')+'</label><input class="control" id="pa_pass" type="password" autocomplete="new-password" placeholder="'+t('mem.f.password.ph')+'"><div class="err-msg">'+t('v.pwshort')+'</div></div>'+
+              '<div class="field"><label>'+t('mem.f.confirm')+'</label><input class="control" id="pa_confirm" type="password" autocomplete="new-password" placeholder="'+t('mem.f.confirm.ph')+'"><div class="err-msg">'+t('v.pwmatch')+'</div></div>'+
+            '</div>'+
+            '<div class="info-box"><span class="ico">🔒</span><span>'+t('mem.chpw.info')+'</span></div>'+
           '</div>'+
-          '<div class="info-box"><span class="ico">🔒</span><span>'+t('mem.chpw.info')+'</span></div>'+
           '<div class="actions"><button type="button" class="btn btn-ghost" id="mLogout">'+t('mem.logout')+'</button><div class="spacer"></div><button type="submit" class="btn btn-primary" id="mSaveAcct">'+t('dash.save')+'</button></div>'+
         '</form>'+
         '<div style="text-align:center;margin-top:8px"><button type="button" class="link" id="mBuy">'+t('mem.buy')+' →</button></div>';
@@ -1754,6 +1769,15 @@ function renderMember(){
     body.querySelectorAll('[data-ptab]').forEach(b=>b.onclick=()=>{ memberState.profileTab=b.dataset.ptab; renderMember(); });
     const buy = el('mBuy'); if(buy) buy.onclick = ()=>{ closeMember(); window.scrollTo(0,0); };
     const lo = el('mLogout'); if(lo) lo.onclick = ()=>{ setMemberAuthed(false); memberState.screen='auth'; memberState.authTab='login'; memberState.profileTab='account'; renderMember(); updateMemberBtn(); };
+    const pwToggle = el('mTogglePassword');
+    if(pwToggle) pwToggle.onclick = ()=>{
+      const fields = el('passwordFields');
+      const willOpen = fields.hidden;
+      fields.hidden = !willOpen;
+      pwToggle.classList.toggle('open', willOpen);
+      pwToggle.setAttribute('aria-expanded', String(willOpen));
+      if(willOpen) el('pa_pass').focus();
+    };
     const acctForm = el('memAcctForm');
     if(acctForm) acctForm.onsubmit = e=>{
       e.preventDefault();
