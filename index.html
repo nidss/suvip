@@ -1660,7 +1660,7 @@ let memberAuthed = false;
 function isMemberAuthed(){ return memberAuthed; }
 function setMemberAuthed(v){ memberAuthed = !!v; }
 
-const memberState = { screen:'auth', authTab:'login', draft:{}, file:null, profileTab:'account' };
+const memberState = { screen:'auth', authTab:'register', draft:{}, file:null, profileTab:'account' };
 
 function updateMemberBtn(){
   const m = loadMember();
@@ -1671,7 +1671,7 @@ function updateMemberBtn(){
 function openMember(){
   const m = loadMember();
   if(isMemberAuthed() && m){ memberState.screen='profile'; }
-  else { memberState.screen='auth'; memberState.authTab = m ? 'login' : 'register'; }
+  else { memberState.screen='auth'; memberState.authTab = 'register'; }
   memberState.draft = m ? Object.assign({}, m) : {};
   memberState.profileTab = 'account';
   renderMember();
