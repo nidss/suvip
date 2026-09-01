@@ -358,6 +358,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .member-btn{background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt);height:38px;padding:0 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:13px;flex:0 0 auto;transition:.15s}
 .member-btn:hover{border-color:var(--mint);color:#fff}
 .member-btn svg{width:16px;height:16px}
+.member-btn[hidden]{display:none}
 @media(max-width:520px){.member-btn .mb-txt{display:none}.member-btn{padding:0;width:38px;justify-content:center}}
 
 /* ---------- Dashboard (Ctrl+Shift+Z) ---------- */
@@ -423,7 +424,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
     <img src="asset/logovip.png" alt="Souped Up VIP Village" class="brand-logo">
   </a>
   <div style="display:flex;align-items:center;gap:10px">
-    <button class="member-btn" id="memberBtn">
+    <button class="member-btn" id="memberBtn" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span class="mb-txt" id="memberBtnText">เข้าสู่ระบบ</span>
     </button>
@@ -1733,6 +1734,7 @@ document.addEventListener('keydown', e=>{
 
 /* ================= Member auth (login / register / profile) ================= */
 const MEMBER_KEY = 'suvip_member';
+const MEMBER_FEATURE_ENABLED = false;
 function loadMember(){ try{ return JSON.parse(localStorage.getItem(MEMBER_KEY)) || null; }catch(e){ return null; } }
 function saveMember(m){ try{ localStorage.setItem(MEMBER_KEY, JSON.stringify(m)); }catch(e){} }
 // In-memory only: a page refresh always returns to the login/register page.
@@ -1946,9 +1948,10 @@ el('memberBack').addEventListener('click', e=>{ if(e.target===el('memberBack') &
 seedMockIfEmpty();
 applyLang();
 updateMemberBtn();
+el('memberBtn').hidden = !MEMBER_FEATURE_ENABLED;
 setTab('early');
-// Login state is in-memory only, so every page load starts at the login/register page.
-if(!isMemberAuthed()) openMember();
+// Member screens are temporarily hidden; visitors start on the package landing page.
+if(MEMBER_FEATURE_ENABLED && !isMemberAuthed()) openMember();
 </script>
 </body>
 </html>
