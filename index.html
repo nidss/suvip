@@ -1653,11 +1653,12 @@ document.addEventListener('keydown', e=>{
 
 /* ================= Member auth (login / register / profile) ================= */
 const MEMBER_KEY = 'suvip_member';
-const MEMBER_AUTH = 'suvip_member_auth';
 function loadMember(){ try{ return JSON.parse(localStorage.getItem(MEMBER_KEY)) || null; }catch(e){ return null; } }
 function saveMember(m){ try{ localStorage.setItem(MEMBER_KEY, JSON.stringify(m)); }catch(e){} }
-function isMemberAuthed(){ try{ return sessionStorage.getItem(MEMBER_AUTH)==='1'; }catch(e){ return false; } }
-function setMemberAuthed(v){ try{ v ? sessionStorage.setItem(MEMBER_AUTH,'1') : sessionStorage.removeItem(MEMBER_AUTH); }catch(e){} }
+// In-memory only: a page refresh always returns to the login/register page.
+let memberAuthed = false;
+function isMemberAuthed(){ return memberAuthed; }
+function setMemberAuthed(v){ memberAuthed = !!v; }
 
 const memberState = { screen:'auth', authTab:'login', draft:{}, file:null, profileTab:'account' };
 
@@ -1844,8 +1845,8 @@ seedMockIfEmpty();
 applyLang();
 updateMemberBtn();
 setTab('early');
-// First visit: show the member login/register overlay first
-if(!isMemberAuthed() && !gateSeen()) openMember();
+// Login state is in-memory only, so every page load starts at the login/register page.
+if(!isMemberAuthed()) openMember();
 </script>
 </body>
 </html>
