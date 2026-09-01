@@ -344,6 +344,9 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .hist-pkg{font-weight:700;font-size:15.5px}
 .hist-amt{font-weight:800;font-size:17px;color:var(--gold);font-variant-numeric:tabular-nums}
 .hist-days{font-size:13px;color:var(--txt-dim);margin-top:4px}
+.hist-plates{display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:9px 11px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--txt-dim);line-height:1.5}
+.hist-plates svg{width:17px;height:17px;color:var(--mint);flex:0 0 auto;margin-top:1px}
+.hist-plates strong{color:var(--txt);font-weight:700}
 .hist-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
 .hist-ref{font-family:'Rajdhani',monospace;letter-spacing:1px;font-size:12px;color:var(--amber)}
 .hist-date{font-size:12px;color:var(--txt-faint);margin-left:auto}
@@ -832,7 +835,7 @@ const L = {
     'mem.profile.eyebrow':'สมาชิก','mem.profile.title':'บัญชีของฉัน','mem.profile.sub':'ข้อมูลบัญชีของคุณ',
     'mem.profile.account':'บัญชีของฉัน','mem.profile.history':'ประวัติการซื้อ',
     'mem.chpw':'เปลี่ยนรหัสผ่าน','mem.newpw':'รหัสผ่านใหม่ (New Password)','mem.chpw.info':'กรอกรหัสผ่านใหม่และยืนยันรหัสผ่านให้ตรงกัน','mem.username.locked':'ชื่อผู้ใช้ไม่สามารถแก้ไขได้',
-    'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ',
+    'mem.hist.empty':'ยังไม่มีประวัติการซื้อแพ็กเกจ','mem.hist.plate':'ทะเบียนรถ',
     'mem.edit':'แก้ไขข้อมูล','mem.logout':'ออกจากระบบ','mem.p.none':'—',
     'v.pwshort':'รหัสผ่านอย่างน้อย 6 ตัวอักษร','v.pwmatch':'รหัสผ่านไม่ตรงกัน',
     'mem.toast.forgot':'กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน','mem.toast.needreg':'ยังไม่มีบัญชี กรุณาสมัครสมาชิกก่อน',
@@ -906,7 +909,7 @@ const L = {
     'mem.profile.eyebrow':'Member','mem.profile.title':'My Account','mem.profile.sub':'Your account information',
     'mem.profile.account':'My Account','mem.profile.history':'Purchase History',
     'mem.chpw':'Change password','mem.newpw':'New Password (รหัสผ่านใหม่)','mem.chpw.info':'Enter and confirm your new password.','mem.username.locked':'Username cannot be changed.',
-    'mem.hist.empty':'No package purchases yet',
+    'mem.hist.empty':'No package purchases yet','mem.hist.plate':'License plate',
     'mem.edit':'Edit info','mem.logout':'Log out','mem.p.none':'—',
     'v.pwshort':'Password must be at least 6 characters','v.pwmatch':'Passwords do not match',
     'mem.toast.forgot':'Please contact the admin to reset your password','mem.toast.needreg':'No account yet — please register first',
@@ -1377,15 +1380,19 @@ function seedMockIfEmpty(){
 function seedMemberHistory(m){
   const memberId = m && (m.username || m.email || '');
   if(!memberId) return;
-  const regs = loadRegs();
-  if(regs.some(r=>r.member===memberId)) return;
+  let regs = loadRegs();
+  const hasRealHistory = regs.some(r=>r.member===memberId && !r.mockMemberHistory);
+  const beforeClean = regs.length;
+  regs = regs.filter(r=>!(r.member===memberId && r.mockMemberHistory));
+  if(hasRealHistory){
+    if(regs.length!==beforeClean) saveRegs(regs);
+    return;
+  }
 
   const base = Date.now();
   const safeId = memberId.replace(/[^a-zA-Z0-9]/g,'').slice(0,12) || 'member';
   const samples = [
-    { pkg:'p3', dayIds:['d5','d6','d7'], priceTab:'early', amount:PRICES.early.p3, ago:9, ref:'SUVIP-260823-001' },
-    { pkg:'p1', dayIds:['d6'], priceTab:'normal', amount:PRICES.normal.p1, ago:24, ref:'SUVIP-260808-014' },
-    { pkg:'p2', dayIds:['d5','d7'], priceTab:'early', amount:PRICES.early.p2, ago:47, ref:'SUVIP-260716-008' }
+    { pkg:'p3', dayIds:['d5','d6','d7'], priceTab:'early', amount:PRICES.early.p3, ago:9, ref:'SUVIP-260823-001' }
   ];
 
   samples.forEach((s,i)=>regs.push({
@@ -1395,7 +1402,7 @@ function seedMemberHistory(m){
     name:m.name||'สมาชิก', surname:m.surname||'',
     phone:m.phone||'', email:m.email||'', contacts:[],
     pkg:s.pkg, dayIds:s.dayIds, amount:s.amount,
-    tshirt:i===1?'L':'XL', plates:[], foodAvoid:'', foodAllergy:'', consent:true,
+    tshirt:'XL', plates:s.dayIds.map(day=>({day,plate:'กท 2026'})), foodAvoid:'', foodAllergy:'', consent:true,
     member:memberId, ref:s.ref, mockMemberHistory:true
   }));
   saveRegs(regs);
@@ -1775,11 +1782,13 @@ function renderMember(){
       } else {
         content = '<div class="hist-list">' + mine.map(r=>{
           const days = (r.dayIds||[]).map(dayLabel).join(', ');
+          const plates = (r.plates||[]).filter(p=>p.plate).map(p=>dayLabel(p.day)+': '+esc(p.plate)).join(' · ');
           const dt = new Date(r.ts||Date.now());
           const dstr = dt.toLocaleDateString(state.lang==='th'?'th-TH':'en-US',{year:'numeric',month:'short',day:'numeric'});
           return '<div class="hist-card">'+
               '<div class="hist-top"><span class="hist-pkg">'+t('pkg.'+r.pkg)+'</span><span class="hist-amt">'+money(r.amount||0)+'</span></div>'+
               '<div class="hist-days">'+esc(days)+'</div>'+
+              (plates?'<div class="hist-plates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M5 12h14"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg><span><strong>'+t('mem.hist.plate')+'</strong> · '+plates+'</span></div>':'')+
               '<div class="hist-meta"><span class="badge-tab '+(r.priceTab==='early'?'early':'')+'">'+t('tab.'+r.priceTab)+'</span>'+
                 '<span class="hist-ref">'+esc(r.ref||r.id||'')+'</span><span class="hist-date">'+esc(dstr)+'</span></div>'+
             '</div>';
