@@ -301,13 +301,16 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .dash-logout svg{width:17px;height:17px}
 
 /* ---------- Member auth (login / register / profile) ---------- */
-.member-back{position:fixed;inset:0;z-index:245;display:none;place-items:start center;padding:20px;overflow:auto;
+.member-back{position:fixed;inset:0;z-index:245;display:none;flex-direction:column;overflow:auto;
   background:
     radial-gradient(1200px 600px at 50% -200px,rgba(225,6,0,.10),transparent 60%),
     radial-gradient(900px 520px at 0% 100%,rgba(111,255,232,.07),transparent 60%),
     var(--bg);}
-.member-back.open{display:grid}
-.member-card{max-width:640px;width:100%;margin:auto 0}
+.member-back.open{display:flex}
+.member-nav{position:sticky;top:0;z-index:3;flex:0 0 auto;width:100%}
+.member-stage{width:100%;min-height:calc(100vh - 69px);display:grid;place-items:center;padding:20px}
+.member-card{max-width:640px;width:100%;margin:auto}
+@media(max-width:640px){.member-stage{min-height:calc(100vh - 61px);padding:14px}}
 .member-close{position:absolute;top:14px;right:16px;background:var(--panel-2);border:1px solid var(--line-2);color:var(--txt-dim);width:34px;height:34px;border-radius:9px;font-size:20px;line-height:1;cursor:pointer;z-index:2}
 .member-close:hover{color:#fff;border-color:var(--mint)}
 .tabs{display:flex;background:var(--bg);border-radius:10px;padding:5px;gap:5px;margin-bottom:24px;border:1px solid var(--line)}
@@ -417,10 +420,21 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 
 <!-- ============ MEMBER AUTH (login / register / profile) ============ -->
 <div class="member-back" id="memberBack">
-  <div class="member-card card">
-    <div class="speed-line"></div>
-    <button class="member-close" id="memberClose" aria-label="close">×</button>
-    <div class="card-pad" id="memberBody"></div>
+  <nav class="topbar member-nav" aria-label="Member navigation">
+    <a class="brand" href="#" aria-label="Souped Up VIP Village — member home">
+      <img src="asset/logovip.png" alt="Souped Up VIP Village" class="brand-logo">
+    </a>
+    <div class="lang-switch">
+      <button data-setlang="th" class="active">TH</button>
+      <button data-setlang="en">EN</button>
+    </div>
+  </nav>
+  <div class="member-stage">
+    <div class="member-card card">
+      <div class="speed-line"></div>
+      <button class="member-close" id="memberClose" aria-label="close">×</button>
+      <div class="card-pad" id="memberBody"></div>
+    </div>
   </div>
 </div>
 
