@@ -111,6 +111,7 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .control::placeholder{color:#5a616e}
 .control:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
 .control:disabled{background:#101217;border-color:#242933;color:#727b89;cursor:not-allowed;opacity:.78;box-shadow:none}
+.control[readonly]{background:#101217;border-color:#242933;color:#a8b0bd;cursor:not-allowed;box-shadow:none}
 .field.invalid .control{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,6,0,.15)}
 .err-msg{color:var(--red-2);font-size:11px;display:none}
 .field.invalid .err-msg{display:block}
@@ -973,6 +974,9 @@ function orderTotal(){ return state.tickets.reduce((sum,ticket)=>sum+ticketPrice
 /* ================= Payment summary (step 1) ================= */
 function renderSummary(){
   const price=orderTotal();
+  const rf=el('regForm');
+  // ชื่อสำหรับใบกำกับภาษี = ชื่อผู้ลงทะเบียน (แก้ไขไม่ได้)
+  const buyerName=(((rf&&rf.name.value)||'')+' '+((rf&&rf.surname.value)||'')).trim()||(hostMember&&hostMember.username)||'';
   const ticketLines=state.tickets.map((ticket,i)=>'<div class="sum-line"><span class="lab">'+t('ticket.item').replace('{n}',i+1)+' · '+t('pkg.'+ticket.pkg)+'<small style="display:block;color:var(--txt-dim);margin-top:3px">'+esc(selectedDays(ticket).map(d=>d[state.lang]).join(', '))+'</small></span><span class="val">'+money(ticketPrice(ticket))+'</span></div>').join('');
   el('sumScreen').innerHTML =
    '<p class="eyebrow">'+t('sm.eyebrow')+'</p>'+
@@ -985,8 +989,8 @@ function renderSummary(){
    // ต้องการออกใบกำกับภาษี + เงื่อนไขการชำระเงิน
    '<label class="checkbox" style="margin:18px 0 4px"><input type="checkbox" id="taxCb"'+(state.tax?' checked':'')+'> <span>'+t('py.tax')+'</span></label>'+
    '<div id="taxFields" class="'+(state.tax?'':'hidden')+'">'+
-     '<div class="field full"><label>'+t('py.tax.name')+'</label><input class="control" id="tax_name"></div>'+
-     '<div class="grid"><div class="field"><label>'+t('py.tax.taxid')+'</label><input class="control" id="tax_id"></div></div>'+
+     '<div class="field full"><label>'+t('py.tax.name')+'</label><input class="control" id="tax_name" value="'+esc(buyerName)+'" readonly></div>'+
+     '<div class="field full"><label>'+t('py.tax.taxid')+'</label><input class="control" id="tax_id" inputmode="numeric"></div>'+
      '<div class="field full"><label>'+t('py.tax.addr')+'</label><input class="control" id="tax_addr"></div>'+
    '</div>'+
    '<div class="card" style="margin:18px 0;background:var(--panel-2)"><div class="card-pad" style="padding:16px 18px">'+
