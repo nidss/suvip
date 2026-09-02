@@ -594,6 +594,11 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
   </form>
  </div><!-- /#regView -->
 
+ <!-- ============ PAYMENT SUMMARY VIEW ============ -->
+ <div id="sumView" hidden>
+   <div class="card"><div class="speed-line"></div><div class="card-pad" id="sumScreen"></div></div>
+ </div>
+
  <!-- ============ PAYMENT VIEW ============ -->
  <div id="payView" hidden>
    <div class="card"><div class="speed-line"></div><div class="card-pad" id="payScreen"></div></div>
@@ -699,6 +704,7 @@ const L = {
     'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ','toast.chan':'กรุณาเลือกช่องทางการติดต่อเพิ่มเติมอย่างน้อย 1 ช่องทาง',
     'py.eyebrow':'ชำระเงิน','py.title':'ชำระเงิน','py.sub':'เลือกวิธีการชำระเงิน',
     'py.days':'วันที่เข้าร่วม','py.pricetab':'ประเภทราคา','sm.total':'ยอดชำระทั้งหมด',
+    'sm.eyebrow':'สรุปรายการ','sm.title':'สรุปยอดการชำระเงิน','sm.sub':'ตรวจสอบรายการก่อนดำเนินการชำระเงิน','sm.next':'ดำเนินการชำระเงิน',
     'py.card':'บัตรเครดิต','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / โอนเงิน','py.qr.d':'พร้อมเพย์ / โอนผ่านธนาคาร',
     'py.tax':'ต้องการออกใบกำกับภาษี','py.tax.name':'ชื่อ-นามสกุล / บริษัท','py.tax.taxid':'เลขประจำตัวผู้เสียภาษี','py.tax.addr':'ที่อยู่สำหรับออกใบกำกับภาษี',
     'py.card.num':'หมายเลขบัตร','py.card.exp':'วันหมดอายุ (MM/YY)','py.card.cvv':'CVV','py.card.holder':'ชื่อบนบัตร','py.qr.scan':'สแกน QR เพื่อชำระเงิน',
@@ -778,6 +784,7 @@ const L = {
     'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.','toast.chan':'Please select at least 1 additional contact channel.',
     'py.eyebrow':'Payment','py.title':'Payment','py.sub':'Choose a payment method',
     'py.days':'Attendance day(s)','py.pricetab':'Price type','sm.total':'Total Amount',
+    'sm.eyebrow':'Order Summary','sm.title':'Payment Summary','sm.sub':'Review your order before payment','sm.next':'Continue to payment',
     'py.card':'Credit Card','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / Transfer','py.qr.d':'PromptPay / Bank transfer',
     'py.tax':'Request a tax invoice','py.tax.name':'Name / Company','py.tax.taxid':'Tax ID','py.tax.addr':'Address for tax invoice',
     'py.card.num':'Card Number','py.card.exp':'Expiry (MM/YY)','py.card.cvv':'CVV','py.card.holder':'Cardholder Name','py.qr.scan':'Scan the QR to pay',
@@ -946,6 +953,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-ph]').forEach(n=>{ n.placeholder = t(n.dataset.i18nPh); });
   renderContent();
   renderTickets();
+  if(el('sumView') && !el('sumView').hidden) renderSummary();
   if(el('payView') && !el('payView').hidden) renderPay();
   if(el('doneView') && !el('doneView').hidden) renderDone();
 }
@@ -953,26 +961,28 @@ function applyLang(){
 /* ================= Views ================= */
 function showView(v){
   el('regView').hidden  = v!=='reg';
+  el('sumView').hidden  = v!=='sum';
   el('payView').hidden  = v!=='pay';
   el('doneView').hidden = v!=='done';
   window.scrollTo(0,0);
   if(window.parent!==window) window.parent.postMessage({type:'suvip:scroll-top'},'*');
 }
 
-/* ================= Payment ================= */
-function renderPay(){
-  const price=state.tickets.reduce((sum,ticket)=>sum+ticketPrice(ticket),0);
+function orderTotal(){ return state.tickets.reduce((sum,ticket)=>sum+ticketPrice(ticket),0); }
+
+/* ================= Payment summary (step 1) ================= */
+function renderSummary(){
+  const price=orderTotal();
   const ticketLines=state.tickets.map((ticket,i)=>'<div class="sum-line"><span class="lab">'+t('ticket.item').replace('{n}',i+1)+' · '+t('pkg.'+ticket.pkg)+'<small style="display:block;color:var(--txt-dim);margin-top:3px">'+esc(selectedDays(ticket).map(d=>d[state.lang]).join(', '))+'</small></span><span class="val">'+money(ticketPrice(ticket))+'</span></div>').join('');
-  const isCard = state.payMethod==='card';
-  el('payScreen').innerHTML =
-   '<p class="eyebrow">'+t('py.eyebrow')+'</p>'+
-   '<h1 class="page-title">'+t('py.title')+'</h1>'+
-   '<p class="page-sub">'+t('py.sub')+'</p>'+
+  el('sumScreen').innerHTML =
+   '<p class="eyebrow">'+t('sm.eyebrow')+'</p>'+
+   '<h1 class="page-title">'+t('sm.title')+'</h1>'+
+   '<p class="page-sub">'+t('sm.sub')+'</p>'+
    ticketLines+
    '<div class="sum-line"><span class="lab">'+t('ticket.list')+'</span><span class="val">'+t('ticket.qty').replace('{n}',state.tickets.length)+'</span></div>'+
    '<div class="sum-line"><span class="lab">'+t('py.pricetab')+'</span><span class="val">'+t('tab.'+state.tab)+'</span></div>'+
    '<div class="sum-line total"><span class="lab">'+t('sm.total')+'</span><span class="val">'+money(price)+'</span></div>'+
-   // ต้องการออกใบกำกับภาษี + เงื่อนไขการชำระเงิน — อยู่ในส่วนสรุปยอดการลงทะเบียน
+   // ต้องการออกใบกำกับภาษี + เงื่อนไขการชำระเงิน
    '<label class="checkbox" style="margin:18px 0 4px"><input type="checkbox" id="taxCb"'+(state.tax?' checked':'')+'> <span>'+t('py.tax')+'</span></label>'+
    '<div id="taxFields" class="'+(state.tax?'':'hidden')+'">'+
      '<div class="field full"><label>'+t('py.tax.name')+'</label><input class="control" id="tax_name"></div>'+
@@ -985,6 +995,23 @@ function renderPay(){
      '<p class="note" style="margin-bottom:10px"><b>'+t('py.t2.t')+'</b><br>'+t('py.t2.b')+'</p>'+
      '<p class="note"><b>'+t('py.t3.t')+'</b><br>'+t('py.t3.b')+'</p>'+
    '</div></div>'+
+   '<div class="actions"><button type="button" class="btn btn-ghost" id="sumBack">'+t('btn.back')+'</button>'+
+     '<div class="spacer"></div>'+
+     '<button type="button" class="btn btn-primary btn-lg" id="toPay">'+t('sm.next')+' · '+money(price)+'</button></div>';
+  el('taxCb').onchange=(e)=>{ state.tax=e.target.checked; el('taxFields').classList.toggle('hidden',!e.target.checked); };
+  el('sumBack').onclick=()=>showView('reg');
+  el('toPay').onclick=()=>{ showView('pay'); renderPay(); };
+}
+
+/* ================= Payment method (step 2) ================= */
+function renderPay(){
+  const price=orderTotal();
+  const isCard = state.payMethod==='card';
+  el('payScreen').innerHTML =
+   '<p class="eyebrow">'+t('py.eyebrow')+'</p>'+
+   '<h1 class="page-title">'+t('py.title')+'</h1>'+
+   '<p class="page-sub">'+t('py.sub')+'</p>'+
+   '<div class="sum-line total"><span class="lab">'+t('sm.total')+'</span><span class="val">'+money(price)+'</span></div>'+
    '<div class="pay-methods" style="margin-top:20px">'+
      '<div class="pay-opt '+(isCard?'sel':'')+'" data-pay="card"><div class="p-ico">💳</div><div class="p-name">'+t('py.card')+'</div><div class="p-desc">'+t('py.card.d')+'</div></div>'+
      '<div class="pay-opt '+(!isCard?'sel':'')+'" data-pay="qr"><div class="p-ico">📱</div><div class="p-name">'+t('py.qr')+'</div><div class="p-desc">'+t('py.qr.d')+'</div></div>'+
@@ -999,8 +1026,7 @@ function renderPay(){
     el('payScreen').querySelectorAll('.pay-opt').forEach(p=>p.classList.toggle('sel',p===o));
     renderPayDetail();
   });
-  el('taxCb').onchange=(e)=>{ state.tax=e.target.checked; el('taxFields').classList.toggle('hidden',!e.target.checked); };
-  el('payBack').onclick=()=>showView('reg');
+  el('payBack').onclick=()=>showView('sum');
   el('confirmPay').onclick=()=>finishPayment();
 }
 function renderPayDetail(){
@@ -1304,8 +1330,8 @@ document.getElementById('regForm').addEventListener('submit', e=>{
     member:hostMember?(hostMember.username||hostMember.email||''):''
   });});
 
-  showView('pay');
-  renderPay();
+  showView('sum');
+  renderSummary();
 });
 
 /* ================= Local demo purchase storage ================= */
