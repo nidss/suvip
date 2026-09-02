@@ -972,11 +972,7 @@ function renderPay(){
    '<div class="sum-line"><span class="lab">'+t('ticket.list')+'</span><span class="val">'+t('ticket.qty').replace('{n}',state.tickets.length)+'</span></div>'+
    '<div class="sum-line"><span class="lab">'+t('py.pricetab')+'</span><span class="val">'+t('tab.'+state.tab)+'</span></div>'+
    '<div class="sum-line total"><span class="lab">'+t('sm.total')+'</span><span class="val">'+money(price)+'</span></div>'+
-   '<div class="pay-methods" style="margin-top:20px">'+
-     '<div class="pay-opt '+(isCard?'sel':'')+'" data-pay="card"><div class="p-ico">💳</div><div class="p-name">'+t('py.card')+'</div><div class="p-desc">'+t('py.card.d')+'</div></div>'+
-     '<div class="pay-opt '+(!isCard?'sel':'')+'" data-pay="qr"><div class="p-ico">📱</div><div class="p-name">'+t('py.qr')+'</div><div class="p-desc">'+t('py.qr.d')+'</div></div>'+
-   '</div>'+
-   '<div id="payDetail" style="margin-top:6px"></div>'+
+   // ต้องการออกใบกำกับภาษี + เงื่อนไขการชำระเงิน — อยู่ในส่วนสรุปยอดการลงทะเบียน
    '<label class="checkbox" style="margin:18px 0 4px"><input type="checkbox" id="taxCb"'+(state.tax?' checked':'')+'> <span>'+t('py.tax')+'</span></label>'+
    '<div id="taxFields" class="'+(state.tax?'':'hidden')+'">'+
      '<div class="field full"><label>'+t('py.tax.name')+'</label><input class="control" id="tax_name"></div>'+
@@ -989,6 +985,11 @@ function renderPay(){
      '<p class="note" style="margin-bottom:10px"><b>'+t('py.t2.t')+'</b><br>'+t('py.t2.b')+'</p>'+
      '<p class="note"><b>'+t('py.t3.t')+'</b><br>'+t('py.t3.b')+'</p>'+
    '</div></div>'+
+   '<div class="pay-methods" style="margin-top:20px">'+
+     '<div class="pay-opt '+(isCard?'sel':'')+'" data-pay="card"><div class="p-ico">💳</div><div class="p-name">'+t('py.card')+'</div><div class="p-desc">'+t('py.card.d')+'</div></div>'+
+     '<div class="pay-opt '+(!isCard?'sel':'')+'" data-pay="qr"><div class="p-ico">📱</div><div class="p-name">'+t('py.qr')+'</div><div class="p-desc">'+t('py.qr.d')+'</div></div>'+
+   '</div>'+
+   '<div id="payDetail" style="margin-top:6px"></div>'+
    '<div class="actions"><button type="button" class="btn btn-ghost" id="payBack">'+t('btn.back')+'</button>'+
      '<div class="spacer"></div>'+
      '<button type="button" class="btn btn-primary btn-lg" id="confirmPay">'+t('py.confirm')+' · '+money(price)+'</button></div>';
