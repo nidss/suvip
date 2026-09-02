@@ -118,6 +118,8 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
 .checkbox{display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;font-size:14px;color:var(--txt-dim);line-height:1.5}
 .checkbox input{margin-top:2px;width:17px;height:17px;accent-color:var(--mint);flex:0 0 auto}
 .chan-input{margin-top:8px}
+.chan-list{display:flex;flex-direction:column;gap:14px;margin-top:2px}
+.chan-item{display:flex;flex-direction:column}
 
 .info-box{
   display:flex;gap:10px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.28);
@@ -499,11 +501,53 @@ h2.sec-title{font-size:clamp(19px,3.4vw,25px);margin:0 0 4px;font-weight:700;let
   <!-- ============ REGISTRATION FORM ============ -->
   <form id="regForm" novalidate>
 
-  <!-- Applicant data comes from the shared SU member profile. -->
-  <input type="hidden" name="name">
-  <input type="hidden" name="surname">
-  <input type="hidden" name="phone">
-  <input type="hidden" name="email">
+  <!-- ============ 4. CONTACT INFO ============ -->
+  <!-- ข้อมูลติดต่อ: ค่าเริ่มต้นดึงจากโปรไฟล์สมาชิก SU แล้วให้แก้ไขได้ -->
+  <div class="card">
+    <div class="card-pad">
+      <h2 class="sec-title" data-i18n="ap.title">ข้อมูลติดต่อ</h2>
+      <p class="sec-sub" data-i18n="ap.sub">Contact Information</p>
+      <div class="grid">
+        <div class="field">
+          <label><span data-i18n="ap.name">ชื่อ (Name)</span><span class="req">*</span></label>
+          <input class="control" name="name" data-i18n-ph="ap.name.ph" placeholder="กรอกชื่อ">
+        </div>
+        <div class="field">
+          <label><span data-i18n="ap.surname">นามสกุล (Surname)</span><span class="req">*</span></label>
+          <input class="control" name="surname" data-i18n-ph="ap.surname.ph" placeholder="กรอกนามสกุล">
+        </div>
+        <div class="field">
+          <label><span data-i18n="ap.phone">เบอร์โทรศัพท์ (Mobile Phone)</span><span class="req">*</span></label>
+          <input class="control" name="phone" type="tel" inputmode="tel" data-i18n-ph="ap.phone.ph" placeholder="เช่น 08x-xxx-xxxx">
+        </div>
+        <div class="field">
+          <label><span data-i18n="ap.email">อีเมล (Email)</span><span class="req">*</span></label>
+          <input class="control" name="email" type="email" inputmode="email" data-i18n-ph="ap.email.ph" placeholder="name@email.com">
+        </div>
+        <div class="field full" id="chanField">
+          <label>
+            <span data-i18n="ap.chan">ช่องทางการติดต่อเพิ่มเติม</span><span class="req">*</span>
+            <span class="hint" data-i18n="ap.chan.note">(ต้องเลือกอย่างน้อย 1 ช่องทาง)</span>
+          </label>
+          <div class="chan-list">
+            <div class="chan-item">
+              <label class="checkbox"><input type="checkbox" data-chan="Line"> <span>Line</span></label>
+              <input class="control chan-input" data-chan-input="Line" data-i18n-ph="ap.chan.line.ph" placeholder="Line ID" style="display:none">
+            </div>
+            <div class="chan-item">
+              <label class="checkbox"><input type="checkbox" data-chan="WeChat"> <span>WeChat</span></label>
+              <input class="control chan-input" data-chan-input="WeChat" data-i18n-ph="ap.chan.wechat.ph" placeholder="WeChat ID" style="display:none">
+            </div>
+            <div class="chan-item">
+              <label class="checkbox"><input type="checkbox" data-chan="Whatsapp"> <span>Whatsapp</span></label>
+              <input class="control chan-input" data-chan-input="Whatsapp" data-i18n-ph="ap.chan.whatsapp.ph" placeholder="Whatsapp number" style="display:none">
+            </div>
+          </div>
+          <span class="err-msg" data-i18n="toast.chan">กรุณาเลือกช่องทางการติดต่อเพิ่มเติมอย่างน้อย 1 ช่องทาง</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- 5–8. ONE INDEPENDENT CARD PER ADMISSION TICKET -->
   <div id="ticketSections"></div>
@@ -600,12 +644,14 @@ const L = {
     'content.eyebrow':'Souped Up VIP Village',
     'venue.title':'สถานที่จัดงาน','venue.sub':'Venue','venue.label':'สถานที่จัดงาน',
     'venue.name':'บางกอกแดร็ก อเวนิว ประเทศไทย','venue.open':'เปิดใน Google Maps',
-    'ap.title':'ข้อมูลผู้สมัคร','ap.sub':'Applicant Information',
+    'ap.title':'ข้อมูลติดต่อ','ap.sub':'Contact Information',
     'ap.name':'ชื่อ (Name)','ap.name.ph':'กรอกชื่อ',
     'ap.surname':'นามสกุล (Surname)','ap.surname.ph':'กรอกนามสกุล',
     'ap.phone':'เบอร์โทรศัพท์ (Mobile Phone)','ap.phone.ph':'เช่น 08x-xxx-xxxx',
     'ap.email':'อีเมล (Email)','ap.email.ph':'name@email.com',
     'ap.chan':'ช่องทางการติดต่อเพิ่มเติม (Additional contact)',
+    'ap.chan.note':'(ต้องเลือกอย่างน้อย 1 ช่องทาง)',
+    'ap.chan.line.ph':'ระบุ Line ID','ap.chan.wechat.ph':'ระบุ WeChat ID','ap.chan.whatsapp.ph':'ระบุเบอร์ Whatsapp',
     'pkg.title':'ประเภทแพ็กเกจ VIP Village','pkg.sub':'VIP Village Package',
     'pkg.days.label':'จะมาวันไหน? (เลือกได้ {n} วัน)',
     'pkg.p1':'แพ็กเกจ 1 วัน (1 Day Package)','pkg.p2':'แพ็กเกจ 2 วัน (2 Day Package)','pkg.p3':'แพ็กเกจ 3 วัน (3 Day Package)',
@@ -628,7 +674,7 @@ const L = {
     'submit':'ยืนยันการสมัคร (Submit)',
     'foot.contact':'Contact Center','foot.tel':'โทร (Tel)','foot.date':'วันจันทร์ (Mon.) - ศุกร์ (Fri.) : 08.30 - 17.00 น. (hrs.)',
     'perday':'บาท / วัน','per3':'บาท / 3 วัน','baht':'บาท',
-    'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ',
+    'toast.ok':'ส่งข้อมูลการสมัครเรียบร้อยแล้ว ✓','toast.fill':'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน','toast.consent':'กรุณายินยอมการให้ข้อมูลส่วนบุคคล','toast.pkg':'กรุณาเลือกแพ็กเกจและวันที่เข้าร่วม','toast.days':'กรุณาเลือกวันที่เข้าร่วมให้ครบตามจำนวนวันของแพ็กเกจ','toast.chan':'กรุณาเลือกช่องทางการติดต่อเพิ่มเติมอย่างน้อย 1 ช่องทาง',
     'py.eyebrow':'ชำระเงิน','py.title':'ชำระเงิน','py.sub':'เลือกวิธีการชำระเงิน',
     'py.days':'วันที่เข้าร่วม','py.pricetab':'ประเภทราคา','sm.total':'ยอดชำระทั้งหมด',
     'py.card':'บัตรเครดิต','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / โอนเงิน','py.qr.d':'พร้อมเพย์ / โอนผ่านธนาคาร',
@@ -676,12 +722,14 @@ const L = {
     'content.eyebrow':'Souped Up VIP Village',
     'venue.title':'Venue','venue.sub':'สถานที่จัดงาน','venue.label':'Venue',
     'venue.name':'Bangkok Drag Avenue, Thailand','venue.open':'Open in Google Maps',
-    'ap.title':'Applicant Information','ap.sub':'ข้อมูลผู้สมัคร',
+    'ap.title':'Contact Information','ap.sub':'ข้อมูลติดต่อ',
     'ap.name':'Name (ชื่อ)','ap.name.ph':'Enter your name',
     'ap.surname':'Surname (นามสกุล)','ap.surname.ph':'Enter your surname',
     'ap.phone':'Mobile Phone (เบอร์โทรศัพท์)','ap.phone.ph':'e.g. 08x-xxx-xxxx',
     'ap.email':'Email (อีเมล)','ap.email.ph':'name@email.com',
     'ap.chan':'Additional contact channels (ช่องทางการติดต่อเพิ่มเติม)',
+    'ap.chan.note':'(select at least 1)',
+    'ap.chan.line.ph':'Enter Line ID','ap.chan.wechat.ph':'Enter WeChat ID','ap.chan.whatsapp.ph':'Enter Whatsapp number',
     'pkg.title':'VIP Village Package','pkg.sub':'ประเภทแพ็กเกจ',
     'pkg.days.label':'Which day(s) will you attend? (choose {n})',
     'pkg.p1':'1 Day Package (แพ็กเกจ 1 วัน)','pkg.p2':'2 Day Package (แพ็กเกจ 2 วัน)','pkg.p3':'3 Day Package (แพ็กเกจ 3 วัน)',
@@ -704,7 +752,7 @@ const L = {
     'submit':'Submit (ยืนยันการสมัคร)',
     'foot.contact':'Contact Center','foot.tel':'Tel','foot.date':'Mon. - Fri. : 08.30 - 17.00 hrs.',
     'perday':'THB / day','per3':'THB / 3 days','baht':'THB',
-    'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.',
+    'toast.ok':'Your registration has been submitted ✓','toast.fill':'Please complete all required fields.','toast.consent':'Please provide your consent.','toast.pkg':'Please select a package and attendance day(s).','toast.days':'Please select the required number of day(s) for your package.','toast.chan':'Please select at least 1 additional contact channel.',
     'py.eyebrow':'Payment','py.title':'Payment','py.sub':'Choose a payment method',
     'py.days':'Attendance day(s)','py.pricetab':'Price type','sm.total':'Total Amount',
     'py.card':'Credit Card','py.card.d':'Visa / Mastercard / JCB','py.qr':'QR / Transfer','py.qr.d':'PromptPay / Bank transfer',
@@ -1058,7 +1106,16 @@ document.querySelectorAll('input[data-chan]').forEach(c=>{
     inp.style.display = c.checked ? 'block' : 'none';
     if(!c.checked) inp.value='';
     else inp.focus();
+    // ลบสถานะ invalid เมื่อเริ่มเลือกช่องทางอย่างน้อย 1 ช่อง
+    const chanField=el('chanField');
+    if(chanField&&document.querySelector('input[data-chan]:checked')) chanField.classList.remove('invalid');
   });
+});
+
+/* ================= Clear invalid on contact fields ================= */
+['name','surname','phone','email'].forEach(n=>{
+  const inp=el('regForm').elements[n];
+  if(inp) inp.addEventListener('input',()=>{const f=inp.closest('.field');if(f)f.classList.remove('invalid');});
 });
 
 /* ================= Radio option highlight (shirt/consent) ================= */
@@ -1080,7 +1137,23 @@ el('brandHome').addEventListener('click', e=>{ e.preventDefault(); showView('reg
 document.getElementById('regForm').addEventListener('submit', e=>{
   e.preventDefault();
   const form = e.target;
-  if(window.parent!==window&&['phone','email'].some(n=>!form.elements[n].value.trim())){toast(t('toast.fill'));return;}
+
+  // ตรวจสอบข้อมูลติดต่อ: ชื่อ / นามสกุล / เบอร์โทร / อีเมล จำเป็นต้องกรอกครบ
+  let firstInvalid=null;
+  ['name','surname','phone','email'].forEach(n=>{
+    const inp=form.elements[n],field=inp.closest('.field'),bad=!inp.value.trim();
+    if(field)field.classList.toggle('invalid',bad);
+    if(bad&&!firstInvalid)firstInvalid=inp;
+  });
+  if(firstInvalid){const card=firstInvalid.closest('.card');if(card)card.scrollIntoView({behavior:'smooth',block:'start'});toast(t('toast.fill'));firstInvalid.focus();return;}
+
+  // ช่องทางการติดต่อเพิ่มเติม: ต้องเลือกอย่างน้อย 1 ช่องทาง และช่องที่เลือกต้องกรอกข้อมูล
+  const checkedChans=[...document.querySelectorAll('input[data-chan]:checked')];
+  const chanField=el('chanField');
+  if(checkedChans.length===0){chanField.classList.add('invalid');chanField.scrollIntoView({behavior:'smooth',block:'start'});toast(t('toast.chan'));return;}
+  const emptyChan=checkedChans.find(c=>!document.querySelector('input[data-chan-input="'+c.dataset.chan+'"]').value.trim());
+  if(emptyChan){const inp=document.querySelector('input[data-chan-input="'+emptyChan.dataset.chan+'"]');chanField.scrollIntoView({behavior:'smooth',block:'start'});toast(t('toast.fill'));inp.focus();return;}
+
   for(let i=0;i<state.tickets.length;i++){
     const ticket=state.tickets[i],days=selectedDays(ticket);
     let message='';
