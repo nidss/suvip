@@ -627,17 +627,23 @@ const DAYS = [
   { id:'d6', th:'5 ธันวาคม 2026', en:'5 December 2026' },
   { id:'d7', th:'6 ธันวาคม 2026', en:'6 December 2026' }
 ];
-// Per-day seat capacity + mock bookings (demo): d5 full, d6 nearly full, d7 available
+// Seat capacity + mock bookings (demo). โควตาแยกตามแพ็กเกจ — แต่ละแพ็กเกจมี
+// จำนวนที่นั่งต่อวันไม่เท่ากัน เช่น 4 ธ.ค. (d5) เต็มสำหรับแพ็กเกจ 1 วันและ 3 วัน
+// แต่ยังมีที่ว่างสำหรับแพ็กเกจ 2 วัน
 const DAY_CAP = 20;
-const DAY_BOOKED = { d5:20, d6:17, d7:6 };
+const PKG_DAY_BOOKED = {
+  p1: { d5:20, d6:17, d7:6 },   // 1 วัน: 4 ธ.ค. เต็ม
+  p2: { d5:12, d6:17, d7:6 },   // 2 วัน: 4 ธ.ค. ยังมีที่ว่าง
+  p3: { d5:20, d6:17, d7:6 }    // 3 วัน: คงเดิม (4 ธ.ค. เต็ม)
+};
 const NEAR_LEFT = 3; // "nearly full" when remaining seats <= this
-function dayRemain(id){ return Math.max(0, DAY_CAP - (DAY_BOOKED[id]||0)); }
-function dayStatus(id){ const r = dayRemain(id); return r<=0 ? 'full' : (r<=NEAR_LEFT ? 'near' : 'ok'); }
-function availableDayIds(){ return DAYS.filter(d=>dayStatus(d.id)!=='full').map(d=>d.id); }
+function dayRemain(pid, id){ return Math.max(0, DAY_CAP - ((PKG_DAY_BOOKED[pid]||{})[id]||0)); }
+function dayStatus(pid, id){ const r = dayRemain(pid, id); return r<=0 ? 'full' : (r<=NEAR_LEFT ? 'near' : 'ok'); }
+function availableDayIds(pid){ return DAYS.filter(d=>dayStatus(pid, d.id)!=='full').map(d=>d.id); }
 function pkgAvailable(pid){
-  // Every day included in a package must still have a seat. This also disables
-  // the fixed 3-day bundle as soon as any one of the event days is full.
-  return availableDayIds().length >= PKG_DAYS[pid];
+  // Every day included in a package must still have a seat (within that package's
+  // own quota). This also disables a bundle when it can't cover its required days.
+  return availableDayIds(pid).length >= PKG_DAYS[pid];
 }
 
 /* ================= i18n ================= */
@@ -693,7 +699,7 @@ const L = {
     'py.confirm':'ยืนยันชำระเงิน','btn.back':'ย้อนกลับ',
     'dn.title':'ชำระเงินสำเร็จ!','dn.sub':'เราได้ส่งอีเมลยืนยันการลงทะเบียนให้คุณแล้ว','dn.email':'ส่งไปที่',
     'dn.ref':'หมายเลขอ้างอิง','dn.name':'ชื่อผู้สมัคร','dn.pkg':'แพ็กเกจ','dn.days':'วันที่เข้าร่วม','dn.amount':'ยอดที่ชำระ',
-    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ (PDF)','dn.receipt':'ใบเสร็จรับเงิน · OFFICIAL RECEIPT',
+    'dn.new':'ลงทะเบียนรายการใหม่','dn.print':'พิมพ์ใบเสร็จ (PDF)','dn.receipt':'ใบเสร็จรับเงินชั่วคราว · PROVISIONAL RECEIPT',
     'dash.title':'แดชบอร์ดผู้สมัคร<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
     'dash.count':'จำนวนผู้สมัคร','dash.total':'จำนวนเงินรวม','dash.hint':'กด Ctrl+Shift+Z เพื่อปิด',
     'dash.rows':'รายการ','dash.empty':'ยังไม่มีข้อมูลผู้สมัคร',
@@ -771,7 +777,7 @@ const L = {
     'py.confirm':'Confirm Payment','btn.back':'Back',
     'dn.title':'Payment Successful!','dn.sub':'A confirmation email has been sent to you.','dn.email':'Sent to',
     'dn.ref':'Reference No.','dn.name':'Applicant','dn.pkg':'Package','dn.days':'Attendance day(s)','dn.amount':'Amount Paid',
-    'dn.new':'Register another entry','dn.print':'Print receipt (PDF)','dn.receipt':'OFFICIAL RECEIPT · ใบเสร็จรับเงิน',
+    'dn.new':'Register another entry','dn.print':'Print receipt (PDF)','dn.receipt':'PROVISIONAL RECEIPT · ใบเสร็จรับเงินชั่วคราว',
     'dash.title':'Applicants Dashboard<small>SOUPED UP VIP VILLAGE · DASHBOARD</small>',
     'dash.count':'Applicants','dash.total':'Total Amount','dash.hint':'Press Ctrl+Shift+Z to close',
     'dash.rows':'record(s)','dash.empty':'No applicants yet',
@@ -854,7 +860,7 @@ function ticketSummary(ticket){
 }
 function packageOptions(ticket,index){
   const defs=['p1','p2','p3'];
-  const dayTag=id=>{const s=dayStatus(id);return s==='full'?' <em class="d-full">'+t('day.full')+'</em>':(s==='near'?' <em class="d-near">'+t('day.near')+'</em>':'');};
+  const dayTag=(pid,id)=>{const s=dayStatus(pid,id);return s==='full'?' <em class="d-full">'+t('day.full')+'</em>':(s==='near'?' <em class="d-near">'+t('day.near')+'</em>':'');};
   return defs.map(pid=>{
     const avail=pkgAvailable(pid),on=ticket.pkg===pid,maxN=PKG_DAYS[pid];
     const badge=avail?'':'<span class="pkg-badge-full">'+t('pkg.full')+'</span>';
@@ -862,8 +868,8 @@ function packageOptions(ticket,index){
     if(pid==='p3')dayPick='<div class="day-pick"><div class="dp-note">'+t('pkg.p3.note')+'</div></div>';
     else{
       const daysHtml=DAYS.map(day=>{
-        const full=dayStatus(day.id)==='full',dayOn=!!(ticket.days[pid]&&ticket.days[pid][day.id]);
-        return '<label class="day-chip'+(dayOn?' on':'')+(full?' disabled':'')+'"><input type="'+(maxN===1?'radio':'checkbox')+'" name="day-'+index+'-'+pid+'" data-ticket-day="'+index+':'+pid+':'+day.id+'"'+(dayOn?' checked':'')+(full?' disabled':'')+'><span>'+day[state.lang]+dayTag(day.id)+'</span></label>';
+        const full=dayStatus(pid,day.id)==='full',dayOn=!!(ticket.days[pid]&&ticket.days[pid][day.id]);
+        return '<label class="day-chip'+(dayOn?' on':'')+(full?' disabled':'')+'"><input type="'+(maxN===1?'radio':'checkbox')+'" name="day-'+index+'-'+pid+'" data-ticket-day="'+index+':'+pid+':'+day.id+'"'+(dayOn?' checked':'')+(full?' disabled':'')+'><span>'+day[state.lang]+dayTag(pid,day.id)+'</span></label>';
       }).join('');
       dayPick='<div class="day-pick"><div class="dp-label">'+t('pkg.days.label').replace('{n}',maxN)+'</div><div class="day-grid">'+daysHtml+'</div></div>';
     }
